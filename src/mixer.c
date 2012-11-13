@@ -242,7 +242,6 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 	size_t u;
 	GtkWidget * vbox2;
 	char * name;
-	int c;
 #else
 	int value;
 	char const * labels[] = SOUND_DEVICE_LABELS;
@@ -424,7 +423,8 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 			{
 				if((name = strdup(mixer->mc[u].label.name))
 						!= NULL)
-					name[0] = toupper((c = name[0]));
+					name[0] = toupper(
+							(unsigned char)name[0]);
 				label = _new_frame_label(NULL,
 						mixer->mc[u].label.name, name);
 				free(name);
