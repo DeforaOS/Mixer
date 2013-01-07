@@ -1,9 +1,9 @@
 PACKAGE	= Mixer
 VERSION	= 0.1.1
 SUBDIRS	= data po src
-RM	?= rm -f
-LN	?= ln -f
-TAR	?= tar -czvf
+RM	= rm -f
+LN	= ln -f
+TAR	= tar -czvf
 
 
 all: subdirs
