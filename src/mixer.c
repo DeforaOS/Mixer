@@ -358,7 +358,11 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 		p->hbox = NULL;
 		p->page = -1;
 #else
+# if GTK_CHECK_VERSION(3, 0, 0)
+		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+# else
 		hbox = gtk_hbox_new(FALSE, 4);
+#endif
 		if(mixer->notebook != NULL)
 		{
 			label = _new_frame_label(NULL, _("All"), NULL);
@@ -424,7 +428,12 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 		gtk_container_add(GTK_CONTAINER(widget), vbox2);
 		if(hbox == NULL)
 		{
+# if GTK_CHECK_VERSION(3, 0, 0)
+			mixer->mc[u].hbox = gtk_box_new(
+					GTK_ORIENTATION_HORIZONTAL, 4);
+# else
 			mixer->mc[u].hbox = gtk_hbox_new(FALSE, 4);
+# endif
 			hbox = mixer->mc[u].hbox;
 			gtk_container_set_border_width(GTK_CONTAINER(hbox), 4);
 			if(mixer->notebook != NULL)
@@ -550,7 +559,11 @@ static GtkWidget * _new_frame_label(GdkPixbuf * pixbuf, char const * name,
 	const int size = 16;
 
 	icontheme = gtk_icon_theme_get_default();
+#if GTK_CHECK_VERSION(3, 0, 0)
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#else
 	hbox = gtk_hbox_new(FALSE, 4);
+#endif
 	for(i = 0; pixbuf == NULL && i < sizeof(icons) / sizeof(*icons); i++)
 		if(strncmp(icons[i].name, name, strlen(icons[i].name)) == 0)
 			pixbuf = gtk_icon_theme_load_icon(icontheme,
@@ -637,7 +650,11 @@ static GtkWidget * _new_mute(Mixer * mixer, int dev,
 		free(mc);
 		return NULL;
 	}
+#if GTK_CHECK_VERSION(3, 0, 0)
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#else
 	hbox = gtk_hbox_new(FALSE, 4);
+#endif
 	widget = gtk_image_new_from_icon_name("audio-volume-muted",
 			GTK_ICON_SIZE_BUTTON);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
