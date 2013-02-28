@@ -292,7 +292,11 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 		g_signal_connect_swapped(mixer->window, "delete-event",
 			G_CALLBACK(on_closex), mixer);
 	}
+#if GTK_CHECK_VERSION(3, 0, 0)
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#else
 	vbox = gtk_vbox_new(FALSE, 0);
+#endif
 #ifndef EMBEDDED
 	/* menubar */
 	if(embedded == FALSE)
@@ -321,10 +325,14 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 				? GTK_POLICY_AUTOMATIC : GTK_POLICY_NEVER);
 		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(
 					scrolled), GTK_SHADOW_NONE);
-		if(layout == ML_VERTICAL)
-			hvbox = gtk_vbox_new(TRUE, 4);
-		else
-			hvbox = gtk_hbox_new(FALSE, 4);
+#if GTK_CHECK_VERSION(3, 0, 0)
+		hvbox = gtk_box_new((layout == ML_VERTICAL)
+				? GTK_ORIENTATION_VERTICAL
+				: GTK_ORIENTATION_HORIZONTAL, 0);
+#else
+		hvbox = (layout == ML_VERTICAL) ? gtk_vbox_new(TRUE, 4)
+			: gtk_hbox_new(FALSE, 4);
+#endif
 		gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(
 					scrolled), hvbox);
 	}
