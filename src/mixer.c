@@ -743,7 +743,11 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 	/* bind button */
 	if(mc->un.level.channels_cnt >= 2)
 	{
+#if GTK_CHECK_VERSION(3, 0, 0)
+		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#else
 		hbox = gtk_hbox_new(FALSE, 4);
+#endif
 		widget = gtk_image_new_from_stock(GTK_STOCK_CONNECT,
 				GTK_ICON_SIZE_BUTTON);
 		gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
@@ -754,7 +758,11 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bind), TRUE);
 	}
 	/* sliders */
+#if GTK_CHECK_VERSION(3, 0, 0)
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#else
 	hbox = gtk_hbox_new(FALSE, 0);
+#endif
 	for(i = 0; i < mc->un.level.channels_cnt; i++)
 	{
 		widget = gtk_vscale_new_with_range(0.0, 100.0, 1.0);
