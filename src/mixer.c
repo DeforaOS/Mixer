@@ -1,6 +1,6 @@
 /* $Id$ */
 static char _copyright[] =
-"Copyright (c) 2009-2012 Pierre Pronchery <khorben@defora.org>";
+"Copyright (c) 2009-2013 Pierre Pronchery <khorben@defora.org>";
 /* This file is part of DeforaOS Desktop Mixer */
 static char _license[] =
 "This program is free software: you can redistribute it and/or modify\n"
@@ -176,6 +176,8 @@ static const DesktopMenu _mixer_menu_view[] =
 
 static const DesktopMenu _mixer_menu_help[] =
 {
+	{ N_("_Contents"), G_CALLBACK(on_help_contents), "help-contents", 0,
+		GDK_KEY_F1 },
 	{ N_("_About"), G_CALLBACK(on_help_about), GTK_STOCK_ABOUT, 0, 0 },
 	{ NULL, NULL, NULL, 0, 0 }
 };

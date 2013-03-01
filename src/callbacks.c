@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2010-2012 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2009-2013 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Mixer */
 /* This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -144,6 +144,13 @@ void on_help_about(gpointer data)
 	Mixer * mixer = data;
 
 	mixer_about(mixer);
+}
+
+
+/* on_help_contents */
+void on_help_contents(gpointer data)
+{
+	desktop_help_contents(PACKAGE, "mixer");
 }
 
 
