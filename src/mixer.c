@@ -180,7 +180,7 @@ static const DesktopMenu _mixer_menu_help[] =
 	{ NULL, NULL, NULL, 0, 0 }
 };
 
-static const DesktopMenubar _mixer_menubar[] =
+static DesktopMenubar _mixer_menubar[] =
 {
 	{ N_("_File"), _mixer_menu_file },
 	{ N_("_View"), _mixer_menu_view },
@@ -301,6 +301,8 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 	/* menubar */
 	if(embedded == FALSE)
 	{
+		if(layout == ML_TABBED)
+			_mixer_menubar[1].menu = &_mixer_menu_view[1];
 		widget = desktop_menubar_create(_mixer_menubar, mixer, accel);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
