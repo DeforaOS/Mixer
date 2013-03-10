@@ -189,14 +189,28 @@ static DesktopMenubar _mixer_menubar[] =
 	{ N_("_Help"), _mixer_menu_help },
 	{ NULL, NULL },
 };
-#else
+#else /* EMBEDDED */
 static DesktopToolbar _mixer_toolbar[] =
 {
 	{ N_("Properties"), G_CALLBACK(on_file_properties),
 		GTK_STOCK_PROPERTIES, GDK_MOD1_MASK, GDK_KEY_Return, NULL },
+	{ NULL, NULL, NULL, 0, 0, NULL },
+	{ N_("All"), G_CALLBACK(on_view_all), "stock_select-all", 0, 0, NULL },
+	{ N_("Outputs"), G_CALLBACK(on_view_outputs), "audio-volume-high", 0, 0,
+		NULL },
+	{ N_("Inputs"), G_CALLBACK(on_view_inputs), "stock_line-in", 0, 0,
+		NULL },
+	{ N_("Record"), G_CALLBACK(on_view_record), "gtk-media-record", 0, 0,
+		NULL },
+	{ N_("Monitor"), G_CALLBACK(on_view_monitor), "audio-input-microphone",
+		0, 0, NULL },
+	{ N_("Equalization"), G_CALLBACK(on_view_equalization), "multimedia", 0,
+		0, NULL },
+	{ N_("Mix"), G_CALLBACK(on_view_mix), "stock_volume", 0, 0, NULL },
+	{ N_("Modem"), G_CALLBACK(on_view_modem), "modem", 0, 0, NULL },
 	{ NULL, NULL, NULL, 0, 0, NULL }
 };
-#endif
+#endif /* !EMBEDDED */
 
 
 /* prototypes */
@@ -313,6 +327,8 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 	/* toolbar */
 	if(embedded == FALSE)
 	{
+		if(layout != ML_TABBED)
+			_mixer_toolbar[1].name = "";
 		widget = desktop_toolbar_create(_mixer_toolbar, mixer, accel);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
