@@ -333,6 +333,7 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
 #endif
+	g_object_unref(accel);
 	/* classes */
 	mixer->notebook = NULL;
 	if(layout == ML_TABBED)
@@ -399,7 +400,8 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 					scrolled, label);
 		}
 		else
-			gtk_box_pack_start(GTK_BOX(hvbox), hbox, FALSE, TRUE, 0);
+			gtk_box_pack_start(GTK_BOX(hvbox), hbox, FALSE, TRUE,
+					0);
 		break;
 #endif
 	}
