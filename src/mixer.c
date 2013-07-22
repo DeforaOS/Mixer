@@ -1013,10 +1013,20 @@ void mixer_properties(Mixer * mixer)
 	}
 	if(_mixer_get_properties(mixer, &mp) != 0)
 		return;
-	mixer->properties = gtk_dialog_new_with_buttons(_("Mixer properties"),
-			GTK_WINDOW(mixer->window),
+	mixer->properties = gtk_message_dialog_new(GTK_WINDOW(mixer->window),
 			GTK_DIALOG_DESTROY_WITH_PARENT,
-			GTK_STOCK_CLOSE, GTK_RESPONSE_ACCEPT, NULL);
+			GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
+			"%s", _("Properties"));
+#if GTK_CHECK_VERSION(2, 6, 0)
+	gtk_message_dialog_format_secondary_text(
+			GTK_MESSAGE_DIALOG(mixer->properties), "");
+#endif
+#if GTK_CHECK_VERSION(2, 10, 0)
+	gtk_message_dialog_set_image(GTK_MESSAGE_DIALOG(mixer->properties),
+			gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,
+				GTK_ICON_SIZE_DIALOG));
+#endif
+	gtk_window_set_title(GTK_WINDOW(mixer->properties), _("Properties"));
 	g_signal_connect(mixer->properties, "delete-event", G_CALLBACK(
 				_properties_on_closex), NULL);
 	g_signal_connect(mixer->properties, "response", G_CALLBACK(
