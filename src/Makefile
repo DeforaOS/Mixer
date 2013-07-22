@@ -42,7 +42,7 @@ distclean: clean
 
 install: $(TARGETS)
 	$(MKDIR) $(DESTDIR)$(BINDIR)
-	$(INSTALL) -m 0755 -- mixer $(DESTDIR)$(BINDIR)/mixer
+	$(INSTALL) -m 0755 mixer $(DESTDIR)$(BINDIR)/mixer
 
 uninstall:
 	$(RM) -- $(DESTDIR)$(BINDIR)/mixer
