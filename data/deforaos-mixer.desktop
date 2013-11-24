@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Volume mixer
 Comment=Set the volume on your sound card
+TryExec=mixer
 Exec=mixer
 Icon=stock_volume
 Type=Application
