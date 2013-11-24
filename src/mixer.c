@@ -239,6 +239,8 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox);
 Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 {
 	Mixer * mixer;
+	MixerProperties properties;
+	char buf[80];
 	GtkAccelGroup * accel;
 	GtkSizeGroup * hgroup;
 	GtkSizeGroup * vgroup;
@@ -305,6 +307,14 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 				"stock_volume");
 #endif
 		gtk_window_set_title(GTK_WINDOW(mixer->window), _("Mixer"));
+		if(_mixer_get_properties(mixer, &properties) == 0)
+		{
+			snprintf(buf, sizeof(buf), "%s - %s%s%s", _("Mixer"),
+					properties.name,
+					strlen(properties.version) ? " " : "",
+					properties.version);
+			gtk_window_set_title(GTK_WINDOW(mixer->window), buf);
+		}
 		g_signal_connect_swapped(mixer->window, "delete-event",
 			G_CALLBACK(on_closex), mixer);
 	}
