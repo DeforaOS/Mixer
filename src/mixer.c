@@ -1,6 +1,6 @@
 /* $Id$ */
 static char _copyright[] =
-"Copyright © 2009-2013 Pierre Pronchery <khorben@defora.org>";
+"Copyright © 2009-2014 Pierre Pronchery <khorben@defora.org>";
 /* This file is part of DeforaOS Desktop Mixer */
 static char _license[] =
 "This program is free software: you can redistribute it and/or modify\n"
@@ -668,8 +668,8 @@ static GtkWidget * _new_enum(Mixer * mixer, int dev,
 			*q = e->member[i].ord;
 			g_object_set_data(G_OBJECT(widget), "ord", q);
 		}
-		g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(
-					on_enum_toggled), mixer);
+		g_signal_connect(widget, "toggled", G_CALLBACK(on_enum_toggled),
+				mixer);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
 	return vbox;
@@ -706,8 +706,7 @@ static GtkWidget * _new_mute(Mixer * mixer, int dev,
 		? TRUE : FALSE;
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), active);
 	g_object_set_data(G_OBJECT(widget), "ctrl", mc);
-	g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(
-				on_mute_toggled), mixer);
+	g_signal_connect(widget, "toggled", G_CALLBACK(on_mute_toggled), mixer);
 	return widget;
 }
 
@@ -744,8 +743,8 @@ static GtkWidget * _new_set(Mixer * mixer, int dev, struct audio_mixer_set * s)
 			*q = s->member[i].mask;
 			g_object_set_data(G_OBJECT(widget), "mask", q);
 		}
-		g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(
-					on_set_toggled), mixer);
+		g_signal_connect(widget, "toggled", G_CALLBACK(on_set_toggled),
+				mixer);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
 	return vbox;
@@ -809,7 +808,7 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 		g_object_set_data(G_OBJECT(widget), "ctrl", mc);
 		g_object_set_data(G_OBJECT(widget), "channel",
 				&mc->un.level.channels[i]);
-		g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(
+		g_signal_connect(widget, "value-changed", G_CALLBACK(
 					on_value_changed), mixer);
 		gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
 	}
@@ -980,7 +979,7 @@ void mixer_about(Mixer * mixer)
 	mixer->about = desktop_about_dialog_new();
 	gtk_window_set_transient_for(GTK_WINDOW(mixer->about), GTK_WINDOW(
 				mixer->window));
-	g_signal_connect(G_OBJECT(mixer->about), "delete-event", G_CALLBACK(
+	g_signal_connect(mixer->about, "delete-event", G_CALLBACK(
 				_about_on_closex), NULL);
 	desktop_about_dialog_set_authors(mixer->about, _authors);
 	desktop_about_dialog_set_comments(mixer->about,
