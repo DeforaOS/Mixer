@@ -756,6 +756,7 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 	GtkWidget * align;
 	GtkWidget * vbox;
 	GtkWidget * hbox;
+	GtkWidget * image;
 	GtkWidget * widget;
 	GtkWidget * bind = NULL;
 	GSList * list = NULL;
@@ -779,14 +780,16 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 #else
 		hbox = gtk_hbox_new(FALSE, 4);
 #endif
-		widget = gtk_image_new_from_stock(GTK_STOCK_CONNECT,
+		image = gtk_image_new_from_stock(GTK_STOCK_CONNECT,
 				GTK_ICON_SIZE_BUTTON);
-		gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, TRUE, 0);
 		widget = gtk_label_new(_("Bind"));
 		gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 		bind = gtk_toggle_button_new();
 		gtk_container_add(GTK_CONTAINER(bind), hbox);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bind), TRUE);
+		g_signal_connect(bind, "toggled", G_CALLBACK(on_bind_toggled),
+				image);
 	}
 	/* sliders */
 #if GTK_CHECK_VERSION(3, 0, 0)

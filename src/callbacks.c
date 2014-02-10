@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2009-2013 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2009-2014 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Mixer */
 /* This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -155,6 +155,19 @@ void on_help_contents(gpointer data)
 
 
 /* controls */
+/* on_bind_toggled */
+void on_bind_toggled(GtkWidget * widget, gpointer data)
+{
+	GtkWidget * image = data;
+	gboolean active;
+
+	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+	gtk_image_set_from_stock(GTK_IMAGE(image),
+			active ? GTK_STOCK_CONNECT : GTK_STOCK_DISCONNECT,
+			GTK_ICON_SIZE_BUTTON);
+}
+
+
 /* on_enum_toggled */
 void on_enum_toggled(GtkWidget * widget, gpointer data)
 {
