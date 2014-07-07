@@ -946,7 +946,7 @@ int mixer_set_value(Mixer * mixer, GtkWidget * widget, gdouble value)
 	GSList * q;
 
 #ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s(%p, %lf) fd=%d\n", __func__, (void *)mixer,
+	fprintf(stderr, "DEBUG: %s(%p, %f) fd=%d\n", __func__, (void *)mixer,
 			value, mixer->fd);
 #endif
 	b = g_object_get_data(G_OBJECT(widget), "bind");
