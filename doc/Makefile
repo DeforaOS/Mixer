@@ -12,7 +12,7 @@ all: $(TARGETS)
 mixer.1: mixer.xml
 	./docbook.sh -P "$(PREFIX)" -- "mixer.1"
 
-mixer.html: mixer.xml
+mixer.html: manual.css.xml mixer.css.xml mixer.xml
 	./docbook.sh -P "$(PREFIX)" -- "mixer.html"
 
 clean:
