@@ -393,7 +393,7 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 # else
 		hbox = gtk_hbox_new(FALSE, 4);
-#endif
+# endif
 		if(mixer->notebook != NULL)
 		{
 			label = _new_frame_label(NULL, _("All"), NULL);
@@ -441,7 +441,12 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 				control = _new_set(mixer, i, &md.un.s);
 				break;
 			case AUDIO_MIXER_VALUE:
+# if GTK_CHECK_VERSION(3, 0, 0)
+				bbox = gtk_button_box_new(
+						GTK_ORIENTATION_VERTICAL);
+# else
 				bbox = gtk_vbutton_box_new();
+# endif
 				gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox),
 						GTK_BUTTONBOX_START);
 				gtk_size_group_add_widget(vgroup, bbox);
@@ -530,7 +535,11 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 			break;
 		if(ioctl(mixer->fd, MIXER_READ(i), &value) != 0)
 			continue;
+# if GTK_CHECK_VERSION(3, 0, 0)
+		bbox = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
+# else
 		bbox = gtk_vbutton_box_new();
+# endif
 		gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox),
 				GTK_BUTTONBOX_START);
 		gtk_size_group_add_widget(vgroup, bbox);
@@ -799,7 +808,12 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 #endif
 	for(i = 0; i < mc->un.level.channels_cnt; i++)
 	{
+#if GTK_CHECK_VERSION(3, 0, 0)
+		widget = gtk_scale_new_with_range(GTK_ORIENTATION_VERTICAL, 0.0,
+				100.0, 1.0);
+#else
 		widget = gtk_vscale_new_with_range(0.0, 100.0, 1.0);
+#endif
 		gtk_range_set_inverted(GTK_RANGE(widget), TRUE);
 		v = (mc->un.level.channels[i] / 255.0) * 100.0;
 		gtk_range_set_value(GTK_RANGE(widget), v);
