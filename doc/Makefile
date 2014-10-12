@@ -17,6 +17,7 @@ mixer.html: manual.css.xml mixer.css.xml mixer.xml
 
 clean:
 	$(RM) -- $(mixer.1_OBJS) $(mixer.html_OBJS)
+	./docbook.sh -c -P "$(PREFIX)" -- "mixer.1"
 	./docbook.sh -c -P "$(PREFIX)" -- "mixer.html"
 
 distclean: clean

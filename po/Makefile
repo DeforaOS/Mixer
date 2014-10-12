@@ -17,6 +17,7 @@ fr.mo: Mixer.pot fr.po
 
 clean:
 	$(RM) -- $(Mixer.pot_OBJS) $(fr.mo_OBJS)
+	./gettext.sh -c -P "$(PREFIX)" -- "Mixer.pot"
 	./gettext.sh -c -P "$(PREFIX)" -- "fr.mo"
 
 distclean: clean
