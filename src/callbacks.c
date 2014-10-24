@@ -18,7 +18,7 @@
 #ifdef DEBUG
 # include <stdio.h>
 #endif
-#if defined(__NetBSD__) || defined(__sun__)
+#if defined(__NetBSD__)
 # include <sys/audioio.h>
 #endif
 #include <Desktop.h>

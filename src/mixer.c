@@ -19,7 +19,7 @@ static char _license[] =
 
 
 
-#if defined(__NetBSD__) || defined(__sun__)
+#if defined(__NetBSD__)
 # include <sys/ioctl.h>
 # include <sys/audioio.h>
 #else
