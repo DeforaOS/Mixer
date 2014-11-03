@@ -1,4 +1,5 @@
-TARGETS	= mixer
+TARGETS	= $(OBJDIR)mixer
+OBJDIR	=
 PREFIX	= /usr/local
 DESTDIR	=
 BINDIR	= $(PREFIX)/bin
@@ -18,21 +19,21 @@ INSTALL	= install
 
 all: $(TARGETS)
 
-mixer_OBJS = mixer.o callbacks.o main.o
+mixer_OBJS = $(OBJDIR)mixer.o $(OBJDIR)callbacks.o $(OBJDIR)main.o
 mixer_CFLAGS = $(CPPFLAGSF) $(CPPFLAGS) $(CFLAGSF) $(CFLAGS)
 mixer_LDFLAGS = $(LDFLAGSF) $(LDFLAGS)
 
-mixer: $(mixer_OBJS)
-	$(CC) -o mixer $(mixer_OBJS) $(mixer_LDFLAGS)
+$(OBJDIR)mixer: $(mixer_OBJS)
+	$(CC) -o $(OBJDIR)mixer $(mixer_OBJS) $(mixer_LDFLAGS)
 
-mixer.o: mixer.c callbacks.h mixer.h ../config.h
-	$(CC) $(mixer_CFLAGS) -c mixer.c
+$(OBJDIR)mixer.o: mixer.c callbacks.h mixer.h ../config.h
+	$(CC) $(mixer_CFLAGS) -o $(OBJDIR)mixer.o -c mixer.c
 
-callbacks.o: callbacks.c mixer.h callbacks.h ../config.h
-	$(CC) $(mixer_CFLAGS) -c callbacks.c
+$(OBJDIR)callbacks.o: callbacks.c mixer.h callbacks.h ../config.h
+	$(CC) $(mixer_CFLAGS) -o $(OBJDIR)callbacks.o -c callbacks.c
 
-main.o: main.c mixer.h ../config.h
-	$(CC) $(mixer_CFLAGS) -c main.c
+$(OBJDIR)main.o: main.c mixer.h ../config.h
+	$(CC) $(mixer_CFLAGS) -o $(OBJDIR)main.o -c main.c
 
 clean:
 	$(RM) -- $(mixer_OBJS)
@@ -42,7 +43,7 @@ distclean: clean
 
 install: $(TARGETS)
 	$(MKDIR) $(DESTDIR)$(BINDIR)
-	$(INSTALL) -m 0755 mixer $(DESTDIR)$(BINDIR)/mixer
+	$(INSTALL) -m 0755 $(OBJDIR)mixer $(DESTDIR)$(BINDIR)/mixer
 
 uninstall:
 	$(RM) -- $(DESTDIR)$(BINDIR)/mixer

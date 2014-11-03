@@ -1,4 +1,5 @@
-TARGETS	= mixer.1 mixer.html
+TARGETS	= $(OBJDIR)mixer.1 $(OBJDIR)mixer.html
+OBJDIR	=
 PREFIX	= /usr/local
 DESTDIR	=
 RM	= rm -f
@@ -9,11 +10,11 @@ INSTALL	= install
 
 all: $(TARGETS)
 
-mixer.1: mixer.xml
-	./docbook.sh -P "$(PREFIX)" -- "mixer.1"
+$(OBJDIR)mixer.1: mixer.xml
+	./docbook.sh -P "$(PREFIX)" -- "$(OBJDIR)mixer.1"
 
-mixer.html: manual.css.xml mixer.css.xml mixer.xml
-	./docbook.sh -P "$(PREFIX)" -- "mixer.html"
+$(OBJDIR)mixer.html: manual.css.xml mixer.css.xml mixer.xml
+	./docbook.sh -P "$(PREFIX)" -- "$(OBJDIR)mixer.html"
 
 clean:
 	$(RM) -- $(mixer.1_OBJS) $(mixer.html_OBJS)
@@ -24,8 +25,8 @@ distclean: clean
 	$(RM) -- $(TARGETS)
 
 install: $(TARGETS)
-	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "mixer.1"
-	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "mixer.html"
+	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "$(OBJDIR)mixer.1"
+	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -i -- "$(OBJDIR)mixer.html"
 
 uninstall:
 	./docbook.sh -P "$(DESTDIR)$(PREFIX)" -u -- "mixer.1"

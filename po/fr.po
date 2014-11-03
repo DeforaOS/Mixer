@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mixer 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-23 01:08+0200\n"
+"POT-Creation-Date: 2014-11-03 23:11+0100\n"
 "PO-Revision-Date: 2010-04-23 04:08+0200\n"
 "Last-Translator: Pierre Pronchery <khorben@defora.org>\n"
 "Language-Team: French\n"
@@ -92,11 +92,11 @@ msgstr "_Vue"
 msgid "_Help"
 msgstr "_Aide"
 
-#: ../src/mixer.c:195 ../src/mixer.c:1019 ../src/mixer.c:1029
+#: ../src/mixer.c:195 ../src/mixer.c:1045 ../src/mixer.c:1055
 msgid "Properties"
 msgstr "Propriétés"
 
-#: ../src/mixer.c:198 ../src/mixer.c:389
+#: ../src/mixer.c:198 ../src/mixer.c:399
 msgid "All"
 msgstr "Tous"
 
@@ -128,38 +128,38 @@ msgstr "Mix"
 msgid "Modem"
 msgstr "Modem"
 
-#: ../src/mixer.c:307
+#: ../src/mixer.c:309 ../src/mixer.c:312
 msgid "Mixer"
 msgstr "Contrôle du volume"
 
-#: ../src/mixer.c:691
+#: ../src/mixer.c:710
 msgid "Mute"
 msgstr "Muet"
 
-#: ../src/mixer.c:776
+#: ../src/mixer.c:795
 msgid "Bind"
 msgstr "Lier"
 
-#: ../src/mixer.c:977
+#: ../src/mixer.c:1003
 msgid "Volume mixer for the DeforaOS desktop"
 msgstr "Contrôle du volume pour l'environnement DeforaOS"
 
-#: ../src/mixer.c:983
+#: ../src/mixer.c:1009
 msgid "translator-credits"
 msgstr "Pierre Pronchery <khorben@defora.org>"
 
-#: ../src/mixer.c:1046
+#: ../src/mixer.c:1072
 msgid "Name: "
 msgstr "Nom : "
 
-#: ../src/mixer.c:1060
+#: ../src/mixer.c:1086
 msgid "Version: "
 msgstr "Version : "
 
-#: ../src/mixer.c:1074
+#: ../src/mixer.c:1100
 msgid "Device: "
 msgstr "Carte : "
 
-#: ../src/mixer.c:1157 ../src/mixer.c:1162
+#: ../src/mixer.c:1183 ../src/mixer.c:1188
 msgid "Error"
 msgstr "Erreur"
