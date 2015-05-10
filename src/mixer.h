@@ -34,7 +34,8 @@ typedef struct _Mixer Mixer;
 
 
 /* functions */
-Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded);
+Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout,
+		gboolean embedded);
 void mixer_delete(Mixer * mixer);
 
 /* accessors */

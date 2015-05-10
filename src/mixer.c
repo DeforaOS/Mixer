@@ -237,7 +237,8 @@ static GtkWidget * _new_set(Mixer * mixer, int dev, struct audio_mixer_set * s);
 #endif
 static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox);
 
-Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
+Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout,
+		gboolean embedded)
 {
 	Mixer * mixer;
 	MixerProperties properties;

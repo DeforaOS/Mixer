@@ -20,7 +20,7 @@
 #include <locale.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
-#include "mixer.h"
+#include "window.h"
 #include "../config.h"
 #define _(string) gettext(string)
 
@@ -51,12 +51,12 @@ static int _usage(void);
 /* mixer */
 static int _mixer(char const * device, MixerLayout layout, gboolean embedded)
 {
-	Mixer * mixer;
+	MixerWindow * mixer;
 
-	if((mixer = mixer_new(device, layout, embedded)) == NULL)
+	if((mixer = mixerwindow_new(device, layout, embedded)) == NULL)
 		return 2;
 	gtk_main();
-	mixer_delete(mixer);
+	mixerwindow_delete(mixer);
 	return 0;
 }
 
