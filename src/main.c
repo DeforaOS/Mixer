@@ -40,7 +40,21 @@
 #endif
 
 
+/* prototypes */
+static int _error(char const * message, int ret);
+static int _usage(void);
+
+
 /* functions */
+/* error */
+static int _error(char const * message, int ret)
+{
+	fputs(PROGNAME ": ", stderr);
+	perror(message);
+	return ret;
+}
+
+
 /* usage */
 static int _usage(void)
 {
@@ -63,9 +77,11 @@ int main(int argc, char * argv[])
 	gboolean embedded = FALSE;
 	Mixer * mixer;
 
-	setlocale(LC_ALL, "");
+	if(setlocale(LC_ALL, "") == NULL)
+		_error("setlocale", 1);
 	bindtextdomain(PACKAGE, LOCALEDIR);
 	textdomain(PACKAGE);
+	gtk_init(&argc, &argv);
 	while((o = getopt(argc, argv, "HTVd:x")) != -1)
 		switch(o)
 		{
@@ -89,7 +105,6 @@ int main(int argc, char * argv[])
 		}
 	if(optind != argc)
 		return _usage();
-	gtk_init(&argc, &argv);
 	if((mixer = mixer_new(device, ml, embedded)) == NULL)
 		return 2;
 	gtk_main();
