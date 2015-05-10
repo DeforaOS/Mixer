@@ -1,19 +1,17 @@
 /* $Id$ */
-static char _copyright[] =
-"Copyright © 2009-2015 Pierre Pronchery <khorben@defora.org>";
+/* Copyright (c) 2009-2015 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Mixer */
-static char _license[] =
-"This program is free software: you can redistribute it and/or modify\n"
-"it under the terms of the GNU General Public License as published by\n"
-"the Free Software Foundation, version 3 of the License.\n"
-"\n"
-"This program is distributed in the hope that it will be useful,\n"
-"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-"GNU General Public License for more details.\n"
-"\n"
-"You should have received a copy of the GNU General Public License\n"
-"along with this program.  If not, see <http://www.gnu.org/licenses/>.";
+/* This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 /* FIXME:
  * - on NetBSD sometimes the "mute" control is before the corresponding knob */
 
@@ -36,12 +34,7 @@ static char _license[] =
 #include <errno.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-#if GTK_CHECK_VERSION(3, 0, 0)
-# include <gtk/gtkx.h>
-#endif
 #include <Desktop.h>
-#include "callbacks.h"
 #include "mixer.h"
 #include "../config.h"
 #define _(string) gettext(string)
@@ -83,20 +76,13 @@ typedef struct _MixerControl
 	} un;
 } MixerControl;
 
-typedef struct _MixerProperties
-{
-	char name[32];
-	char version[16];
-	char device[16];
-} MixerProperties;
-
 struct _Mixer
 {
 	/* widgets */
 	GtkWidget * window;
+	GtkWidget * widget;
 	GtkWidget * notebook;
 	GtkWidget * properties;
-	GtkWidget * about;
 	PangoFontDescription * bold;
 
 	/* internals */
@@ -116,109 +102,10 @@ struct _Mixer
 #define MIXER_DEFAULT_DEVICE "/dev/mixer"
 
 
-/* variables */
-static char const * _authors[] =
-{
-	"Pierre Pronchery <khorben@defora.org>",
-	NULL
-};
-
-#ifdef EMBEDDED
-static const DesktopAccel _mixer_accel[] =
-{
-	{ G_CALLBACK(on_file_close), GDK_CONTROL_MASK, GDK_KEY_W },
-	{ G_CALLBACK(on_file_properties), GDK_MOD1_MASK, GDK_KEY_Return },
-	{ G_CALLBACK(on_view_all), GDK_CONTROL_MASK, GDK_KEY_A },
-# ifdef AUDIO_MIXER_DEVINFO
-	{ G_CALLBACK(on_view_outputs), GDK_CONTROL_MASK, GDK_KEY_O },
-	{ G_CALLBACK(on_view_inputs), GDK_CONTROL_MASK, GDK_KEY_I },
-	{ G_CALLBACK(on_view_record), GDK_CONTROL_MASK, GDK_KEY_R },
-	{ G_CALLBACK(on_view_monitor), GDK_CONTROL_MASK, GDK_KEY_N },
-	{ G_CALLBACK(on_view_equalization), GDK_CONTROL_MASK, GDK_KEY_E },
-	{ G_CALLBACK(on_view_mix), GDK_CONTROL_MASK, GDK_KEY_X },
-	{ G_CALLBACK(on_view_modem), GDK_CONTROL_MASK, GDK_KEY_M },
-# endif
-	{ NULL, 0, 0 }
-};
-#endif
-
-#ifndef EMBEDDED
-static const DesktopMenu _mixer_menu_file[] =
-{
-	{ N_("_Properties"), G_CALLBACK(on_file_properties),
-		GTK_STOCK_PROPERTIES, GDK_MOD1_MASK, GDK_KEY_Return },
-	{ N_("_Close"), G_CALLBACK(on_file_close), GTK_STOCK_CLOSE,
-		GDK_CONTROL_MASK, GDK_KEY_W },
-	{ NULL, NULL, NULL, 0, 0 }
-};
-
-static const DesktopMenu _mixer_menu_view[] =
-{
-	{ N_("_All"), G_CALLBACK(on_view_all), NULL, GDK_CONTROL_MASK,
-		GDK_KEY_A },
-# ifdef AUDIO_MIXER_DEVINFO
-	{ N_("_Outputs"), G_CALLBACK(on_view_outputs), "audio-volume-high",
-		GDK_CONTROL_MASK, GDK_KEY_O },
-	{ N_("_Inputs"), G_CALLBACK(on_view_inputs), "stock_line-in",
-		GDK_CONTROL_MASK, GDK_KEY_I },
-	{ N_("_Record"), G_CALLBACK(on_view_record), "gtk-media-record",
-		GDK_CONTROL_MASK, GDK_KEY_R },
-	{ N_("Mo_nitor"), G_CALLBACK(on_view_monitor), "audio-input-microphone",
-		GDK_CONTROL_MASK, GDK_KEY_N },
-	{ N_("_Equalization"), G_CALLBACK(on_view_equalization), "multimedia",
-		GDK_CONTROL_MASK, GDK_KEY_E },
-	{ N_("Mi_x"), G_CALLBACK(on_view_mix), "stock_volume", GDK_CONTROL_MASK,
-		GDK_KEY_X },
-	{ N_("_Modem"), G_CALLBACK(on_view_modem), "modem", GDK_CONTROL_MASK,
-		GDK_KEY_M },
-# endif
-	{ NULL, NULL, NULL, 0, 0 }
-};
-
-static const DesktopMenu _mixer_menu_help[] =
-{
-	{ N_("_Contents"), G_CALLBACK(on_help_contents), "help-contents", 0,
-		GDK_KEY_F1 },
-	{ N_("_About"), G_CALLBACK(on_help_about), GTK_STOCK_ABOUT, 0, 0 },
-	{ NULL, NULL, NULL, 0, 0 }
-};
-
-static DesktopMenubar _mixer_menubar[] =
-{
-	{ N_("_File"), _mixer_menu_file },
-	{ N_("_View"), _mixer_menu_view },
-	{ N_("_Help"), _mixer_menu_help },
-	{ NULL, NULL },
-};
-#else /* EMBEDDED */
-static DesktopToolbar _mixer_toolbar[] =
-{
-	{ N_("Properties"), G_CALLBACK(on_file_properties),
-		GTK_STOCK_PROPERTIES, GDK_MOD1_MASK, GDK_KEY_Return, NULL },
-	{ NULL, NULL, NULL, 0, 0, NULL },
-	{ N_("All"), G_CALLBACK(on_view_all), "stock_select-all", 0, 0, NULL },
-	{ N_("Outputs"), G_CALLBACK(on_view_outputs), "audio-volume-high", 0, 0,
-		NULL },
-	{ N_("Inputs"), G_CALLBACK(on_view_inputs), "stock_line-in", 0, 0,
-		NULL },
-	{ N_("Record"), G_CALLBACK(on_view_record), "gtk-media-record", 0, 0,
-		NULL },
-	{ N_("Monitor"), G_CALLBACK(on_view_monitor), "audio-input-microphone",
-		0, 0, NULL },
-	{ N_("Equalization"), G_CALLBACK(on_view_equalization), "multimedia", 0,
-		0, NULL },
-	{ N_("Mix"), G_CALLBACK(on_view_mix), "stock_volume", 0, 0, NULL },
-	{ N_("Modem"), G_CALLBACK(on_view_modem), "modem", 0, 0, NULL },
-	{ NULL, NULL, NULL, 0, 0, NULL }
-};
-#endif /* !EMBEDDED */
-
-
 /* prototypes */
 static int _mixer_error(Mixer * mixer, char const * message, int ret);
 /* accessors */
 static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control);
-static int _mixer_get_properties(Mixer * mixer, MixerProperties * properties);
 static int _mixer_set_control(Mixer * mixer, int index, MixerControl * control);
 /* useful */
 static void _mixer_show_view(Mixer * mixer, int view);
@@ -234,20 +121,22 @@ static GtkWidget * _new_enum(Mixer * mixer, int dev,
 static GtkWidget * _new_mute(Mixer * mixer, int dev,
 		struct audio_mixer_enum * e);
 static GtkWidget * _new_set(Mixer * mixer, int dev, struct audio_mixer_set * s);
+/* callbacks */
+static void _new_enum_on_toggled(GtkWidget * widget, gpointer data);
+static void _new_mute_on_toggled(GtkWidget * widget, gpointer data);
+static void _new_set_on_toggled(GtkWidget * widget, gpointer data);
 #endif
 static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox);
+/* callbacks */
+static void _new_bind_on_toggled(GtkWidget * widget, gpointer data);
+static void _new_value_on_changed(GtkWidget * widget, gpointer data);
 
-Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout,
-		gboolean embedded)
+Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 {
 	Mixer * mixer;
-	MixerProperties properties;
-	char buf[80];
-	GtkAccelGroup * accel;
 	GtkSizeGroup * hgroup;
 	GtkSizeGroup * vgroup;
 	GtkWidget * scrolled = NULL;
-	GtkWidget * vbox;
 	GtkWidget * label;
 	GtkWidget * widget;
 	GtkWidget * hvbox = NULL;
@@ -267,7 +156,6 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout,
 	char const * labels[] = SOUND_DEVICE_LABELS;
 	char const * names[] = SOUND_DEVICE_NAMES;
 #endif
-	unsigned long id;
 
 	if((mixer = malloc(sizeof(*mixer))) == NULL)
 		return NULL;
@@ -275,9 +163,8 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout,
 		device = MIXER_DEFAULT_DEVICE;
 	mixer->device = strdup(device);
 	mixer->fd = open(device, O_RDWR);
-	mixer->window = NULL;
+	mixer->window = window;
 	mixer->properties = NULL;
-	mixer->about = NULL;
 	mixer->bold = NULL;
 #ifdef AUDIO_MIXER_DEVINFO
 	mixer->mc = NULL;
@@ -292,63 +179,8 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout,
 		return NULL;
 	}
 	/* widgets */
-	accel = gtk_accel_group_new();
 	mixer->bold = pango_font_description_new();
 	pango_font_description_set_weight(mixer->bold, PANGO_WEIGHT_BOLD);
-	if(embedded)
-	{
-		mixer->window = gtk_plug_new(0);
-		g_signal_connect_swapped(mixer->window, "embedded", G_CALLBACK(
-					on_embedded), mixer);
-	}
-	else
-	{
-		mixer->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-		gtk_window_add_accel_group(GTK_WINDOW(mixer->window), accel);
-		gtk_window_set_default_size(GTK_WINDOW(mixer->window), 800,
-				300);
-#if GTK_CHECK_VERSION(2, 6, 0)
-		gtk_window_set_icon_name(GTK_WINDOW(mixer->window),
-				"stock_volume");
-#endif
-		gtk_window_set_title(GTK_WINDOW(mixer->window), _("Mixer"));
-		if(_mixer_get_properties(mixer, &properties) == 0)
-		{
-			snprintf(buf, sizeof(buf), "%s - %s%s%s", _("Mixer"),
-					properties.name,
-					strlen(properties.version) ? " " : "",
-					properties.version);
-			gtk_window_set_title(GTK_WINDOW(mixer->window), buf);
-		}
-		g_signal_connect_swapped(mixer->window, "delete-event",
-			G_CALLBACK(on_closex), mixer);
-	}
-#if GTK_CHECK_VERSION(3, 0, 0)
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-#else
-	vbox = gtk_vbox_new(FALSE, 0);
-#endif
-#ifndef EMBEDDED
-	/* menubar */
-	if(embedded == FALSE)
-	{
-		if(layout == ML_TABBED)
-			_mixer_menubar[1].menu = &_mixer_menu_view[1];
-		widget = desktop_menubar_create(_mixer_menubar, mixer, accel);
-		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
-	}
-#else
-	desktop_accel_create(_mixer_accel, mixer, accel);
-	/* toolbar */
-	if(embedded == FALSE)
-	{
-		if(layout != ML_TABBED)
-			_mixer_toolbar[1].name = "";
-		widget = desktop_toolbar_create(_mixer_toolbar, mixer, accel);
-		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
-	}
-#endif
-	g_object_unref(accel);
 	/* classes */
 	mixer->notebook = NULL;
 	if(layout == ML_TABBED)
@@ -558,25 +390,11 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout,
 		gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
 #endif
 	}
-	if(mixer->notebook != NULL)
-		gtk_box_pack_start(GTK_BOX(vbox), mixer->notebook, TRUE, TRUE,
-				0);
-	else
-		gtk_box_pack_start(GTK_BOX(vbox), scrolled, TRUE, TRUE, 0);
-	gtk_container_add(GTK_CONTAINER(mixer->window), vbox);
-	gtk_widget_show_all(vbox);
+	mixer->widget = (mixer->notebook != NULL) ? mixer->notebook : scrolled;
 #ifdef AUDIO_MIXER_DEVINFO
 	mixer_show_class(mixer, AudioCoutputs);
 #endif
-	if(embedded)
-	{
-		/* print the window ID and force a flush */
-		id = gtk_plug_get_id(GTK_PLUG(mixer->window));
-		printf("%lu\n", id);
-		fclose(stdout);
-	}
-	else
-		gtk_widget_show(mixer->window);
+	gtk_widget_show_all(mixer->widget);
 	return mixer;
 }
 
@@ -682,8 +500,8 @@ static GtkWidget * _new_enum(Mixer * mixer, int dev,
 			*q = e->member[i].ord;
 			g_object_set_data(G_OBJECT(widget), "ord", q);
 		}
-		g_signal_connect(widget, "toggled", G_CALLBACK(on_enum_toggled),
-				mixer);
+		g_signal_connect(widget, "toggled", G_CALLBACK(
+					_new_enum_on_toggled), mixer);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
 	return vbox;
@@ -720,7 +538,8 @@ static GtkWidget * _new_mute(Mixer * mixer, int dev,
 		? TRUE : FALSE;
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), active);
 	g_object_set_data(G_OBJECT(widget), "ctrl", mc);
-	g_signal_connect(widget, "toggled", G_CALLBACK(on_mute_toggled), mixer);
+	g_signal_connect(widget, "toggled", G_CALLBACK(_new_mute_on_toggled),
+			mixer);
 	return widget;
 }
 
@@ -757,13 +576,39 @@ static GtkWidget * _new_set(Mixer * mixer, int dev, struct audio_mixer_set * s)
 			*q = s->member[i].mask;
 			g_object_set_data(G_OBJECT(widget), "mask", q);
 		}
-		g_signal_connect(widget, "toggled", G_CALLBACK(on_set_toggled),
-				mixer);
+		g_signal_connect(widget, "toggled", G_CALLBACK(
+					_new_set_on_toggled), mixer);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
 	return vbox;
 }
+
+/* callbacks */
+static void _new_enum_on_toggled(GtkWidget * widget, gpointer data)
+{
+	Mixer * mixer = data;
+
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) == TRUE)
+		mixer_set_enum(mixer, widget);
+}
+
+static void _new_mute_on_toggled(GtkWidget * widget, gpointer data)
+{
+	Mixer * mixer = data;
+
+	mixer_set_mute(mixer, widget);
+}
+
+static void _new_set_on_toggled(GtkWidget * widget, gpointer data)
+{
+	Mixer * mixer = data;
+
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s()\n", __func__);
 #endif
+	mixer_set_set(mixer, widget);
+}
+#endif /* AUDIO_MIXER_DEVINFO */
 
 static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 {
@@ -802,8 +647,8 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 		bind = gtk_toggle_button_new();
 		gtk_container_add(GTK_CONTAINER(bind), hbox);
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bind), TRUE);
-		g_signal_connect(bind, "toggled", G_CALLBACK(on_bind_toggled),
-				image);
+		g_signal_connect(bind, "toggled", G_CALLBACK(
+					_new_bind_on_toggled), image);
 	}
 	/* sliders */
 #if GTK_CHECK_VERSION(3, 0, 0)
@@ -831,7 +676,7 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 		g_object_set_data(G_OBJECT(widget), "channel",
 				&mc->un.level.channels[i]);
 		g_signal_connect(widget, "value-changed", G_CALLBACK(
-					on_value_changed), mixer);
+					_new_value_on_changed), mixer);
 		gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
 	}
 	if(mc->un.level.channels_cnt < 2)
@@ -850,6 +695,31 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 	return vbox;
 }
 
+/* callbacks */
+static void _new_bind_on_toggled(GtkWidget * widget, gpointer data)
+{
+	GtkWidget * image = data;
+	gboolean active;
+
+	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+	gtk_image_set_from_stock(GTK_IMAGE(image),
+			active ? GTK_STOCK_CONNECT : GTK_STOCK_DISCONNECT,
+			GTK_ICON_SIZE_BUTTON);
+}
+
+static void _new_value_on_changed(GtkWidget * widget, gpointer data)
+{
+	Mixer * mixer = data;
+	gdouble value;
+
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(%p, %f, %p)\n", __func__, (void *)widget,
+			value, (void *)data);
+#endif
+	value = gtk_range_get_value(GTK_RANGE(widget));
+	mixer_set_value(mixer, widget, value);
+}
+
 
 /* mixer_delete */
 void mixer_delete(Mixer * mixer)
@@ -860,13 +730,49 @@ void mixer_delete(Mixer * mixer)
 		free(mixer->device);
 	if(mixer->bold != NULL)
 		pango_font_description_free(mixer->bold);
-	if(mixer->window != NULL)
-		gtk_widget_destroy(mixer->window);
 	free(mixer);
 }
 
 
 /* accessors */
+/* mixer_get_properties */
+int mixer_get_properties(Mixer * mixer, MixerProperties * properties)
+{
+#ifdef AUDIO_MIXER_DEVINFO
+	audio_device_t ad;
+
+	if(ioctl(mixer->fd, AUDIO_GETDEV, &ad) != 0)
+		return -_mixer_error(mixer, "AUDIO_GETDEV", 1);
+	snprintf(properties->name, sizeof(properties->name), "%s", ad.name);
+	snprintf(properties->version, sizeof(properties->version), "%s",
+			ad.version);
+	snprintf(properties->device, sizeof(properties->device), "%s",
+			ad.config);
+#else
+	struct mixer_info mi;
+	int version;
+
+	if(ioctl(mixer->fd, SOUND_MIXER_INFO, &mi) != 0)
+		return -_mixer_error(mixer, "SOUND_MIXER_INFO", 1);
+	if(ioctl(mixer->fd, OSS_GETVERSION, &version) != 0)
+		return -_mixer_error(mixer, "OSS_GETVERSION", 1);
+	snprintf(properties->name, sizeof(properties->name), "%s", mi.name);
+	snprintf(properties->version, sizeof(properties->version), "%u.%u",
+			(version >> 16) & 0xffff, version & 0xffff);
+	snprintf(properties->device, sizeof(properties->device), "%s",
+			mixer->device);
+#endif
+	return 0;
+}
+
+
+/* mixer_get_widget */
+GtkWidget * mixer_get_widget(Mixer * mixer)
+{
+	return mixer->widget;
+}
+
+
 /* mixer_set_enum */
 int mixer_set_enum(Mixer * mixer, GtkWidget * widget)
 {
@@ -990,43 +896,6 @@ int mixer_set_value(Mixer * mixer, GtkWidget * widget, gdouble value)
 
 
 /* useful */
-/* mixer_about */
-static gboolean _about_on_closex(GtkWidget * widget);
-
-void mixer_about(Mixer * mixer)
-{
-	if(mixer->about != NULL)
-	{
-		gtk_widget_show(mixer->about);
-		return;
-	}
-	mixer->about = desktop_about_dialog_new();
-	gtk_window_set_transient_for(GTK_WINDOW(mixer->about), GTK_WINDOW(
-				mixer->window));
-	g_signal_connect(mixer->about, "delete-event", G_CALLBACK(
-				_about_on_closex), NULL);
-	desktop_about_dialog_set_authors(mixer->about, _authors);
-	desktop_about_dialog_set_comments(mixer->about,
-			_("Volume mixer for the DeforaOS desktop"));
-	desktop_about_dialog_set_copyright(mixer->about, _copyright);
-	desktop_about_dialog_set_license(mixer->about, _license);
-	desktop_about_dialog_set_logo_icon_name(mixer->about, "stock_volume");
-	desktop_about_dialog_set_name(mixer->about, PACKAGE);
-	desktop_about_dialog_set_translator_credits(mixer->about,
-			_("translator-credits"));
-	desktop_about_dialog_set_version(mixer->about, VERSION);
-	desktop_about_dialog_set_website(mixer->about,
-			"http://www.defora.org/");
-	gtk_widget_show(mixer->about);
-}
-
-static gboolean _about_on_closex(GtkWidget * widget)
-{
-	gtk_widget_hide(widget);
-	return TRUE;
-}
-
-
 /* mixer_properties */
 static GtkWidget * _properties_label(Mixer * mixer, GtkSizeGroup * group,
 		char const * label, char const * value);
@@ -1045,7 +914,7 @@ void mixer_properties(Mixer * mixer)
 		gtk_widget_show(mixer->properties);
 		return;
 	}
-	if(_mixer_get_properties(mixer, &mp) != 0)
+	if(mixer_get_properties(mixer, &mp) != 0)
 		return;
 	mixer->properties = gtk_message_dialog_new(GTK_WINDOW(mixer->window),
 			GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -1280,37 +1149,6 @@ static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control)
 	control->un.level.channels[0] = ((value & 0xff) * 255) / 100;
 	control->un.level.channels[1] = (((value >> 8) & 0xff) * 255) / 100;
 	return 0;
-#endif
-	return 0;
-}
-
-
-/* mixer_get_properties */
-static int _mixer_get_properties(Mixer * mixer, MixerProperties * properties)
-{
-#ifdef AUDIO_MIXER_DEVINFO
-	audio_device_t ad;
-
-	if(ioctl(mixer->fd, AUDIO_GETDEV, &ad) != 0)
-		return -_mixer_error(mixer, "AUDIO_GETDEV", 1);
-	snprintf(properties->name, sizeof(properties->name), "%s", ad.name);
-	snprintf(properties->version, sizeof(properties->version), "%s",
-			ad.version);
-	snprintf(properties->device, sizeof(properties->device), "%s",
-			ad.config);
-#else
-	struct mixer_info mi;
-	int version;
-
-	if(ioctl(mixer->fd, SOUND_MIXER_INFO, &mi) != 0)
-		return -_mixer_error(mixer, "SOUND_MIXER_INFO", 1);
-	if(ioctl(mixer->fd, OSS_GETVERSION, &version) != 0)
-		return -_mixer_error(mixer, "OSS_GETVERSION", 1);
-	snprintf(properties->name, sizeof(properties->name), "%s", mi.name);
-	snprintf(properties->version, sizeof(properties->version), "%u.%u",
-			(version >> 16) & 0xffff, version & 0xffff);
-	snprintf(properties->device, sizeof(properties->device), "%s",
-			mixer->device);
 #endif
 	return 0;
 }

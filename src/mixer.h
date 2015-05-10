@@ -30,22 +30,30 @@ typedef enum _MixerLayout
 	ML_VERTICAL
 } MixerLayout;
 
+typedef struct _MixerProperties
+{
+	char name[32];
+	char version[16];
+	char device[16];
+} MixerProperties;
+
 typedef struct _Mixer Mixer;
 
 
 /* functions */
-Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout,
-		gboolean embedded);
+Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout);
 void mixer_delete(Mixer * mixer);
 
 /* accessors */
+int mixer_get_properties(Mixer * mixer, MixerProperties * properties);
+GtkWidget * mixer_get_widget(Mixer * mixer);
+
 int mixer_set_enum(Mixer * mixer, GtkWidget * widget);
 int mixer_set_mute(Mixer * mixer, GtkWidget * widget);
 int mixer_set_set(Mixer * mixer, GtkWidget * widget);
 int mixer_set_value(Mixer * mixer, GtkWidget * widget, gdouble value);
 
 /* useful */
-void mixer_about(Mixer * mixer);
 void mixer_properties(Mixer * mixer);
 
 void mixer_show(Mixer * mixer);
