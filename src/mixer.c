@@ -97,6 +97,7 @@ struct _Mixer
 	GtkWidget * notebook;
 	GtkWidget * properties;
 	GtkWidget * about;
+	PangoFontDescription * bold;
 
 	/* internals */
 	char * device;
@@ -276,6 +277,7 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 	mixer->window = NULL;
 	mixer->properties = NULL;
 	mixer->about = NULL;
+	mixer->bold = NULL;
 #ifdef AUDIO_MIXER_DEVINFO
 	mixer->mc = NULL;
 	mixer->mc_cnt = 0;
@@ -290,6 +292,8 @@ Mixer * mixer_new(char const * device, MixerLayout layout, gboolean embedded)
 	}
 	/* widgets */
 	accel = gtk_accel_group_new();
+	mixer->bold = pango_font_description_new();
+	pango_font_description_set_weight(mixer->bold, PANGO_WEIGHT_BOLD);
 	if(embedded)
 	{
 		mixer->window = gtk_plug_new(0);
@@ -853,6 +857,8 @@ void mixer_delete(Mixer * mixer)
 		close(mixer->fd);
 	if(mixer->device != NULL)
 		free(mixer->device);
+	if(mixer->bold != NULL)
+		pango_font_description_free(mixer->bold);
 	if(mixer->window != NULL)
 		gtk_widget_destroy(mixer->window);
 	free(mixer);
@@ -1021,15 +1027,14 @@ static gboolean _about_on_closex(GtkWidget * widget)
 
 
 /* mixer_properties */
-static GtkWidget * _properties_label(GtkSizeGroup * left, char const * label,
-		GtkSizeGroup * right, char const * value);
+static GtkWidget * _properties_label(Mixer * mixer, GtkSizeGroup * group,
+		char const * label, char const * value);
 /* callbacks */
 static gboolean _properties_on_closex(GtkWidget * widget);
 
 void mixer_properties(Mixer * mixer)
 {
-	GtkSizeGroup * left;
-	GtkSizeGroup * right;
+	GtkSizeGroup * group;
 	GtkWidget * vbox;
 	GtkWidget * hbox;
 	MixerProperties mp;
@@ -1044,11 +1049,12 @@ void mixer_properties(Mixer * mixer)
 	mixer->properties = gtk_message_dialog_new(GTK_WINDOW(mixer->window),
 			GTK_DIALOG_DESTROY_WITH_PARENT,
 			GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
-			"%s", _("Properties"));
 #if GTK_CHECK_VERSION(2, 6, 0)
+			"%s", _("Properties"));
 	gtk_message_dialog_format_secondary_text(
-			GTK_MESSAGE_DIALOG(mixer->properties), "");
+			GTK_MESSAGE_DIALOG(mixer->properties),
 #endif
+			"");
 #if GTK_CHECK_VERSION(2, 10, 0)
 	gtk_message_dialog_set_image(GTK_MESSAGE_DIALOG(mixer->properties),
 			gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,
@@ -1064,20 +1070,19 @@ void mixer_properties(Mixer * mixer)
 #else
 	vbox = GTK_DIALOG(mixer->properties)->vbox;
 #endif
-	left = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	right = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	hbox = _properties_label(left, _("Name: "), right, mp.name);
+	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+	hbox = _properties_label(mixer, group, _("Name: "), mp.name);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 2);
-	hbox = _properties_label(left, _("Version: "), right, mp.version);
+	hbox = _properties_label(mixer, group, _("Version: "), mp.version);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
-	hbox = _properties_label(left, _("Device: "), right, mp.device);
+	hbox = _properties_label(mixer, group, _("Device: "), mp.device);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 2);
 	gtk_widget_show_all(vbox);
 	gtk_widget_show(mixer->properties);
 }
 
-static GtkWidget * _properties_label(GtkSizeGroup * left, char const * label,
-		GtkSizeGroup * right, char const * value)
+static GtkWidget * _properties_label(Mixer * mixer, GtkSizeGroup * group,
+		char const * label, char const * value)
 {
 	GtkWidget * hbox;
 	GtkWidget * widget;
@@ -1088,13 +1093,13 @@ static GtkWidget * _properties_label(GtkSizeGroup * left, char const * label,
 	hbox = gtk_hbox_new(FALSE, 4);
 #endif
 	widget = gtk_label_new(label);
+	gtk_widget_modify_font(widget, mixer->bold);
 	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
-	gtk_size_group_add_widget(left, widget);
+	gtk_size_group_add_widget(group, widget);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
 	widget = gtk_label_new(value);
 	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
-	gtk_size_group_add_widget(right, widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 	return hbox;
 }
 
