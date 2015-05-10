@@ -41,11 +41,26 @@
 
 
 /* prototypes */
+static int _mixer(char const * device, MixerLayout layout, gboolean embedded);
+
 static int _error(char const * message, int ret);
 static int _usage(void);
 
 
 /* functions */
+/* mixer */
+static int _mixer(char const * device, MixerLayout layout, gboolean embedded)
+{
+	Mixer * mixer;
+
+	if((mixer = mixer_new(device, layout, embedded)) == NULL)
+		return 2;
+	gtk_main();
+	mixer_delete(mixer);
+	return 0;
+}
+
+
 /* error */
 static int _error(char const * message, int ret)
 {
@@ -73,9 +88,8 @@ int main(int argc, char * argv[])
 {
 	int o;
 	char const * device = NULL;
-	MixerLayout ml = ML_TABBED;
+	MixerLayout layout = ML_TABBED;
 	gboolean embedded = FALSE;
-	Mixer * mixer;
 
 	if(setlocale(LC_ALL, "") == NULL)
 		_error("setlocale", 1);
@@ -86,13 +100,13 @@ int main(int argc, char * argv[])
 		switch(o)
 		{
 			case 'H':
-				ml = ML_HORIZONTAL;
+				layout = ML_HORIZONTAL;
 				break;
 			case 'T':
-				ml = ML_TABBED;
+				layout = ML_TABBED;
 				break;
 			case 'V':
-				ml = ML_VERTICAL;
+				layout = ML_VERTICAL;
 				break;
 			case 'd':
 				device = optarg;
@@ -105,9 +119,5 @@ int main(int argc, char * argv[])
 		}
 	if(optind != argc)
 		return _usage();
-	if((mixer = mixer_new(device, ml, embedded)) == NULL)
-		return 2;
-	gtk_main();
-	mixer_delete(mixer);
-	return 0;
+	return (_mixer(device, layout, embedded) == 0) ? 0 : 2;
 }
