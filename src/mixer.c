@@ -1021,6 +1021,9 @@ static gboolean _about_on_closex(GtkWidget * widget)
 
 
 /* mixer_properties */
+static GtkWidget * _properties_label(GtkSizeGroup * left, char const * label,
+		GtkSizeGroup * right, char const * value);
+/* callbacks */
 static gboolean _properties_on_closex(GtkWidget * widget);
 
 void mixer_properties(Mixer * mixer)
@@ -1029,7 +1032,6 @@ void mixer_properties(Mixer * mixer)
 	GtkSizeGroup * right;
 	GtkWidget * vbox;
 	GtkWidget * hbox;
-	GtkWidget * widget;
 	MixerProperties mp;
 
 	if(mixer->properties != NULL)
@@ -1064,52 +1066,39 @@ void mixer_properties(Mixer * mixer)
 #endif
 	left = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 	right = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-#if GTK_CHECK_VERSION(3, 0, 0)
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#else
-	hbox = gtk_hbox_new(FALSE, 4);
-#endif
-	widget = gtk_label_new(_("Name: "));
-	gtk_misc_set_alignment(GTK_MISC(widget), 0, 0);
-	gtk_size_group_add_widget(left, widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
-	widget = gtk_label_new(mp.name);
-	gtk_misc_set_alignment(GTK_MISC(widget), 0, 0);
-	gtk_size_group_add_widget(right, widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	hbox = _properties_label(left, _("Name: "), right, mp.name);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 2);
-#if GTK_CHECK_VERSION(3, 0, 0)
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#else
-	hbox = gtk_hbox_new(FALSE, 4);
-#endif
-	widget = gtk_label_new(_("Version: "));
-	gtk_misc_set_alignment(GTK_MISC(widget), 0, 0);
-	gtk_size_group_add_widget(left, widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
-	widget = gtk_label_new(mp.version);
-	gtk_misc_set_alignment(GTK_MISC(widget), 0, 0);
-	gtk_size_group_add_widget(right, widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	hbox = _properties_label(left, _("Version: "), right, mp.version);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
-#if GTK_CHECK_VERSION(3, 0, 0)
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#else
-	hbox = gtk_hbox_new(FALSE, 4);
-#endif
-	widget = gtk_label_new(_("Device: "));
-	gtk_misc_set_alignment(GTK_MISC(widget), 0, 0);
-	gtk_size_group_add_widget(left, widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
-	widget = gtk_label_new(mp.device);
-	gtk_misc_set_alignment(GTK_MISC(widget), 0, 0);
-	gtk_size_group_add_widget(right, widget);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	hbox = _properties_label(left, _("Device: "), right, mp.device);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 2);
 	gtk_widget_show_all(vbox);
 	gtk_widget_show(mixer->properties);
 }
 
+static GtkWidget * _properties_label(GtkSizeGroup * left, char const * label,
+		GtkSizeGroup * right, char const * value)
+{
+	GtkWidget * hbox;
+	GtkWidget * widget;
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#else
+	hbox = gtk_hbox_new(FALSE, 4);
+#endif
+	widget = gtk_label_new(label);
+	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
+	gtk_size_group_add_widget(left, widget);
+	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	widget = gtk_label_new(value);
+	gtk_misc_set_alignment(GTK_MISC(widget), 0.0, 0.5);
+	gtk_size_group_add_widget(right, widget);
+	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	return hbox;
+}
+
+/* callbacks */
 static gboolean _properties_on_closex(GtkWidget * widget)
 {
 	gtk_widget_hide(widget);
