@@ -73,6 +73,17 @@ void on_view_all(gpointer data)
 }
 
 
+/* on_view_fullscreen */
+void on_view_fullscreen(gpointer data)
+{
+	MixerWindow * mixer = data;
+	gboolean fullscreen;
+
+	fullscreen = mixerwindow_get_fullscreen(mixer);
+	mixerwindow_set_fullscreen(mixer, !fullscreen);
+}
+
+
 #ifdef AUDIO_MIXER_DEVINFO
 /* on_view_outputs */
 void on_view_outputs(gpointer data)

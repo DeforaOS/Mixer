@@ -28,15 +28,18 @@ void on_embedded(gpointer data);
 /* menubar */
 void on_file_properties(gpointer data);
 void on_file_close(gpointer data);
-void on_view_all(gpointer data);
-void on_view_outputs(gpointer data);
-void on_view_inputs(gpointer data);
-void on_view_record(gpointer data);
-void on_view_monitor(gpointer data);
-void on_view_equalization(gpointer data);
-void on_view_mix(gpointer data);
-void on_view_modem(gpointer data);
+
 void on_help_about(gpointer data);
 void on_help_contents(gpointer data);
+
+void on_view_all(gpointer data);
+void on_view_equalization(gpointer data);
+void on_view_fullscreen(gpointer data);
+void on_view_inputs(gpointer data);
+void on_view_mix(gpointer data);
+void on_view_modem(gpointer data);
+void on_view_monitor(gpointer data);
+void on_view_outputs(gpointer data);
+void on_view_record(gpointer data);
 
 #endif /* !MIXER_CALLBACKS_H */

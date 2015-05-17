@@ -47,6 +47,7 @@ static char _license[] =
 struct _MixerWindow
 {
 	Mixer * mixer;
+	gboolean fullscreen;
 
 	/* widgets */
 	GtkWidget * window;
@@ -95,6 +96,14 @@ static const DesktopMenu _mixer_menu_file[] =
 
 static const DesktopMenu _mixer_menu_view[] =
 {
+	{ N_("_Fullscreen"), G_CALLBACK(on_view_fullscreen),
+# if GTK_CHECK_VERSION(2, 8, 0)
+		GTK_STOCK_FULLSCREEN,
+# else
+		NULL,
+# endif
+		0, GDK_KEY_F11 },
+	{ "", NULL, NULL, 0, 0 },
 	{ N_("_All"), G_CALLBACK(on_view_all), NULL, GDK_CONTROL_MASK,
 		GDK_KEY_A },
 # ifdef AUDIO_MIXER_DEVINFO
@@ -136,6 +145,14 @@ static DesktopToolbar _mixer_toolbar[] =
 {
 	{ N_("Properties"), G_CALLBACK(on_file_properties),
 		GTK_STOCK_PROPERTIES, GDK_MOD1_MASK, GDK_KEY_Return, NULL },
+	{ "", NULL, NULL, 0, 0, NULL },
+	{ N_("Fullscreen"), G_CALLBACK(on_view_fullscreen),
+# if GTK_CHECK_VERSION(2, 8, 0)
+		GTK_STOCK_FULLSCREEN,
+# else
+		"gtk-fullscreen",
+# endif
+		0, GDK_KEY_F11, NULL },
 	{ NULL, NULL, NULL, 0, 0, NULL },
 	{ N_("All"), G_CALLBACK(on_view_all), "stock_select-all", 0, 0, NULL },
 	{ N_("Outputs"), G_CALLBACK(on_view_outputs), "audio-volume-high", 0, 0,
@@ -195,6 +212,7 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 			G_CALLBACK(on_closex), mixer);
 	}
 	mixer->mixer = NULL;
+	mixer->fullscreen = FALSE;
 	if(mixer->window != NULL)
 	{
 		gtk_widget_realize(mixer->window);
@@ -215,7 +233,7 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 	if(embedded == FALSE)
 	{
 		if(layout == ML_TABBED)
-			_mixer_menubar[1].menu = &_mixer_menu_view[1];
+			_mixer_menubar[3].menu = &_mixer_menu_view[3];
 		widget = desktop_menubar_create(_mixer_menubar, mixer, accel);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
@@ -225,7 +243,7 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 	if(embedded == FALSE)
 	{
 		if(layout != ML_TABBED)
-			_mixer_toolbar[1].name = "";
+			_mixer_toolbar[3].name = "";
 		widget = desktop_toolbar_create(_mixer_toolbar, mixer, accel);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
@@ -269,6 +287,25 @@ void mixerwindow_delete(MixerWindow * mixer)
 	if(mixer->window != NULL)
 		gtk_widget_destroy(mixer->window);
 	object_delete(mixer);
+}
+
+
+/* accessors */
+/* mixerwindow_get_fullscreen */
+gboolean mixerwindow_get_fullscreen(MixerWindow * mixer)
+{
+	return mixer->fullscreen;
+}
+
+
+/* mixerwindow_set_fullscreen */
+void mixerwindow_set_fullscreen(MixerWindow * mixer, gboolean fullscreen)
+{
+	if(fullscreen)
+		gtk_window_fullscreen(GTK_WINDOW(mixer->window));
+	else
+		gtk_window_unfullscreen(GTK_WINDOW(mixer->window));
+	mixer->fullscreen = fullscreen;
 }
 
 

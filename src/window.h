@@ -32,6 +32,10 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 		gboolean embedded);
 void mixerwindow_delete(MixerWindow * mixer);
 
+/* accessors */
+gboolean mixerwindow_get_fullscreen(MixerWindow * mixer);
+void mixerwindow_set_fullscreen(MixerWindow * mixer, gboolean fullscreen);
+
 /* useful */
 void mixerwindow_about(MixerWindow * mixer);
 void mixerwindow_properties(MixerWindow * mixer);
