@@ -108,6 +108,7 @@ static int _mixer_error(Mixer * mixer, char const * message, int ret);
 static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control);
 static int _mixer_set_control(Mixer * mixer, int index, MixerControl * control);
 /* useful */
+static void _mixer_scrolled_window_add(GtkWidget * window, GtkWidget * widget);
 static void _mixer_show_view(Mixer * mixer, int view);
 
 
@@ -191,8 +192,6 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
 				GTK_POLICY_AUTOMATIC, (layout == ML_VERTICAL)
 				? GTK_POLICY_AUTOMATIC : GTK_POLICY_NEVER);
-		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(
-					scrolled), GTK_SHADOW_NONE);
 #if GTK_CHECK_VERSION(3, 0, 0)
 		hvbox = gtk_box_new((layout == ML_VERTICAL)
 				? GTK_ORIENTATION_VERTICAL
@@ -201,8 +200,7 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 		hvbox = (layout == ML_VERTICAL) ? gtk_vbox_new(TRUE, 4)
 			: gtk_hbox_new(FALSE, 4);
 #endif
-		gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(
-					scrolled), hvbox);
+		_mixer_scrolled_window_add(scrolled, hvbox);
 	}
 	for(i = 0;; i++)
 	{
@@ -239,10 +237,7 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 			gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(
 						scrolled),
 					GTK_POLICY_AUTOMATIC, GTK_POLICY_NEVER);
-			gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(
-						scrolled), GTK_SHADOW_NONE);
-			gtk_scrolled_window_add_with_viewport(
-					GTK_SCROLLED_WINDOW(scrolled), hbox);
+			_mixer_scrolled_window_add(scrolled, hbox);
 			gtk_notebook_append_page(GTK_NOTEBOOK(mixer->notebook),
 					scrolled, label);
 		}
@@ -329,12 +324,7 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 						GTK_SCROLLED_WINDOW(scrolled),
 						GTK_POLICY_AUTOMATIC,
 						GTK_POLICY_NEVER);
-				gtk_scrolled_window_set_shadow_type(
-						GTK_SCROLLED_WINDOW(scrolled),
-						GTK_SHADOW_NONE);
-				gtk_scrolled_window_add_with_viewport(
-						GTK_SCROLLED_WINDOW(scrolled),
-						hbox);
+				_mixer_scrolled_window_add(scrolled, hbox);
 				mixer->mc[u].page = gtk_notebook_append_page(
 						GTK_NOTEBOOK(mixer->notebook),
 						scrolled, label);
@@ -1181,6 +1171,18 @@ static int _mixer_set_control(Mixer * mixer, int index, MixerControl * control)
 
 
 /* useful */
+/* mixer_scrolled_window_add */
+static void _mixer_scrolled_window_add(GtkWidget * window, GtkWidget * widget)
+{
+	GtkWidget * viewport;
+
+	viewport = gtk_viewport_new(NULL, NULL);
+	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
+	gtk_container_add(GTK_CONTAINER(viewport), widget);
+	gtk_container_add(GTK_CONTAINER(window), viewport);
+}
+
+
 /* mixer_show_view */
 static void _mixer_show_view(Mixer * mixer, int view)
 {
