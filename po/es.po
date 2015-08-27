@@ -1,0 +1,176 @@
+# $Id$
+# Copyright (c) 2015 Pierre Pronchery <khorben@defora.org>
+# This file is distributed under the same license as the Mixer package.
+# Pierre Pronchery <khorben@defora.org>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Mixer 0.1.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-08-27 23:38+0200\n"
+"PO-Revision-Date: 2015-08-28 00:09+0100\n"
+"Last-Translator: Ana Carolina Rocha <carolina@defora.org>\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.7.5\n"
+
+#: ../src/main.c:76
+#, c-format
+msgid ""
+"Usage: %s [-H|-T|-V][-d device][-x]\n"
+"  -H\tShow the classes next to each other\n"
+"  -T\tShow the classes in separate tabs\n"
+"  -V\tShow the classes on top of each other\n"
+"  -d\tThe mixer device to use\n"
+"  -x\tEnable embedded mode\n"
+msgstr ""
+"Utilización: %s [-H|-T|-V][-d dispositivo][-x]\n"
+"  -H\tMostrar las clases una al lado de la otra\n"
+"  -T\tMostrar las clases en pestañas separadas\n"
+"  -V\tMostrar las clases una encima de la otra\n"
+"  -d\tEl dispositivo de mezcla a utilizar\n"
+"  -x\tActivar modo integrado \n"
+
+#: ../src/mixer.c:234 ../src/window.c:158
+msgid "All"
+msgstr "Todo"
+
+#: ../src/mixer.c:523
+msgid "Mute"
+msgstr "Mute"
+
+#: ../src/mixer.c:635
+msgid "Bind"
+msgstr "Liar"
+
+#: ../src/mixer.c:913 ../src/mixer.c:923 ../src/window.c:147
+msgid "Properties"
+msgstr "Propiedades"
+
+#: ../src/mixer.c:934
+msgid "Name: "
+msgstr "Nombre: "
+
+#: ../src/mixer.c:936
+msgid "Version: "
+msgstr "Versión: "
+
+#: ../src/mixer.c:938
+msgid "Device: "
+msgstr "Dispositivo: "
+
+#: ../src/mixer.c:1037 ../src/mixer.c:1042
+msgid "Error"
+msgstr "Error"
+
+#: ../src/window.c:90
+msgid "_Properties"
+msgstr "_Propiedades"
+
+#: ../src/window.c:93
+msgid "_Close"
+msgstr "_Cerrar"
+
+#: ../src/window.c:100
+msgid "_Fullscreen"
+msgstr "Pantalla Comple_ta"
+
+#: ../src/window.c:108
+msgid "_All"
+msgstr "_Todo"
+
+#: ../src/window.c:111
+msgid "_Outputs"
+msgstr "_Salida"
+
+#: ../src/window.c:113
+msgid "_Inputs"
+msgstr "_Entrada"
+
+#: ../src/window.c:115
+msgid "_Record"
+msgstr "_Grabar"
+
+#: ../src/window.c:117
+msgid "Mo_nitor"
+msgstr "Mo_nitor"
+
+#: ../src/window.c:119
+msgid "_Equalization"
+msgstr "_Ecualización"
+
+#: ../src/window.c:121
+msgid "Mi_x"
+msgstr "Me_zclar"
+
+#: ../src/window.c:123
+msgid "_Modem"
+msgstr "_Modem"
+
+#: ../src/window.c:131
+msgid "_Contents"
+msgstr "_Contenidos"
+
+#: ../src/window.c:133
+msgid "_About"
+msgstr "Acerca_de"
+
+#: ../src/window.c:139
+msgid "_File"
+msgstr "_Archivo"
+
+#: ../src/window.c:140
+msgid "_View"
+msgstr "_Vista"
+
+#: ../src/window.c:141
+msgid "_Help"
+msgstr "A_yuda"
+
+#: ../src/window.c:150
+msgid "Fullscreen"
+msgstr "Pantalla completa"
+
+#: ../src/window.c:159
+msgid "Outputs"
+msgstr "Salida"
+
+#: ../src/window.c:161
+msgid "Inputs"
+msgstr "Entrada"
+
+#: ../src/window.c:163
+msgid "Record"
+msgstr "Grabar"
+
+#: ../src/window.c:165
+msgid "Monitor"
+msgstr "Monitor"
+
+#: ../src/window.c:167
+msgid "Equalization"
+msgstr "Ecualización"
+
+#: ../src/window.c:169
+msgid "Mix"
+msgstr "Mezclar"
+
+#: ../src/window.c:170
+msgid "Modem"
+msgstr "Modem"
+
+#: ../src/window.c:211 ../src/window.c:269
+msgid "Mixer"
+msgstr "Mexclador"
+
+#: ../src/window.c:331
+msgid "Volume mixer for the DeforaOS desktop"
+msgstr "Mezclador de volumen para el escritorio de DeforaOS"
+
+#: ../src/window.c:337
+msgid "translator-credits"
+msgstr "Ana Carolina Rocha <carolina@defora.org>"
