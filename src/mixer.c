@@ -550,6 +550,7 @@ static GtkWidget * _new_set(Mixer * mixer, int dev, struct audio_mixer_set * s)
 	}
 # if GTK_CHECK_VERSION(3, 0, 0)
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	gtk_box_set_homogeneous(GTK_BOX(vbox), TRUE);
 # else
 	vbox = gtk_vbox_new(TRUE, 0);
 # endif
