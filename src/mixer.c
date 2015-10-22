@@ -196,6 +196,8 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 		hvbox = gtk_box_new((layout == ML_VERTICAL)
 				? GTK_ORIENTATION_VERTICAL
 				: GTK_ORIENTATION_HORIZONTAL, 0);
+		if(layout == ML_VERTICAL)
+			gtk_box_set_homogeneous(GTK_BOX(hvbox), TRUE);
 #else
 		hvbox = (layout == ML_VERTICAL) ? gtk_vbox_new(TRUE, 4)
 			: gtk_hbox_new(FALSE, 4);
