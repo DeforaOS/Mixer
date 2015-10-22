@@ -124,7 +124,12 @@ static GtkWidget * _new_mute(Mixer * mixer, int dev,
 static GtkWidget * _new_set(Mixer * mixer, int dev, struct audio_mixer_set * s);
 /* callbacks */
 static void _new_enum_on_toggled(GtkWidget * widget, gpointer data);
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void _new_mute_on_notify(GObject * object, GParamSpec * spec,
+		gpointer data);
+#else
 static void _new_mute_on_toggled(GtkWidget * widget, gpointer data);
+#endif
 static void _new_set_on_toggled(GtkWidget * widget, gpointer data);
 #endif
 static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox);
@@ -507,7 +512,9 @@ static GtkWidget * _new_mute(Mixer * mixer, int dev,
 		struct audio_mixer_enum * e)
 {
 	MixerControl * mc;
+#if !GTK_CHECK_VERSION(3, 0, 0)
 	GtkWidget * hbox;
+#endif
 	GtkWidget * widget;
 	gboolean active;
 
@@ -519,10 +526,15 @@ static GtkWidget * _new_mute(Mixer * mixer, int dev,
 		return NULL;
 	}
 # if GTK_CHECK_VERSION(3, 0, 0)
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+	widget = gtk_switch_new();
+	active = (strcmp(e->member[mc->un.ord].label.name, "on") == 0)
+		? FALSE : TRUE;
+	gtk_switch_set_active(GTK_SWITCH(widget), active);
+	g_object_set_data(G_OBJECT(widget), "ctrl", mc);
+	g_signal_connect(widget, "notify::active",
+			G_CALLBACK(_new_mute_on_notify), mixer);
 # else
 	hbox = gtk_hbox_new(FALSE, 4);
-# endif
 	widget = gtk_image_new_from_icon_name("audio-volume-muted",
 			GTK_ICON_SIZE_BUTTON);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
@@ -536,6 +548,7 @@ static GtkWidget * _new_mute(Mixer * mixer, int dev,
 	g_object_set_data(G_OBJECT(widget), "ctrl", mc);
 	g_signal_connect(widget, "toggled", G_CALLBACK(_new_mute_on_toggled),
 			mixer);
+# endif
 	return widget;
 }
 
@@ -589,12 +602,22 @@ static void _new_enum_on_toggled(GtkWidget * widget, gpointer data)
 		mixer_set_enum(mixer, widget);
 }
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void _new_mute_on_notify(GObject * object, GParamSpec * spec,
+		gpointer data)
+{
+	Mixer * mixer = data;
+
+	mixer_set_mute(mixer, GTK_WIDGET(object));
+}
+#else
 static void _new_mute_on_toggled(GtkWidget * widget, gpointer data)
 {
 	Mixer * mixer = data;
 
 	mixer_set_mute(mixer, widget);
 }
+#endif
 
 static void _new_set_on_toggled(GtkWidget * widget, gpointer data)
 {
@@ -809,9 +832,15 @@ int mixer_set_mute(Mixer * mixer, GtkWidget * widget)
 	fprintf(stderr, "DEBUG: %s(%p) fd=%d\n", __func__, (void *)mixer,
 			mixer->fd);
 # endif
-	p = g_object_get_data(G_OBJECT(widget), "ctrl");
+	if((p = g_object_get_data(G_OBJECT(widget), "ctrl")) == NULL)
+		return -1;
+#if GTK_CHECK_VERSION(3, 0, 0)
+	p->un.ord = gtk_switch_get_active(GTK_SWITCH(widget))
+		? 0 : 1; /* XXX assumes 1 is "off" */
+#else
 	p->un.ord = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))
 		? 1 : 0; /* XXX assumes 0 is "off" */
+#endif
 # ifdef DEBUG
 	fprintf(stderr, "DEBUG: %s(%p) fd=%d ord=%d\n", __func__, (void *)mixer,
 			mixer->fd, p->un.ord);
