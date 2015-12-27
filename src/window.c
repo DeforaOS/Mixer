@@ -139,7 +139,7 @@ static DesktopMenubar _mixer_menubar[] =
 	{ N_("_File"), _mixer_menu_file },
 	{ N_("_View"), _mixer_menu_view },
 	{ N_("_Help"), _mixer_menu_help },
-	{ NULL, NULL },
+	{ NULL, NULL }
 };
 #else
 static DesktopToolbar _mixer_toolbar[] =
