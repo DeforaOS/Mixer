@@ -408,15 +408,16 @@ static GtkWidget * _new_frame_label(GdkPixbuf * pixbuf, char const * name,
 	} icons[] = {
 		{ "beep",	"audio-volume-high"	},
 		{ "cd",		"media-cdrom"		},
-		{ "input",	"stock_line-in"		},
-		{ "line",	"stock_line-in"		},
+		{ "dacsel",	"audio-card"		},
+		{ "input",	"stock_mic"		},
+		{ "line",	"stock_volume"		},
 		{ "master",	"audio-volume-high"	},
 		{ "mic",	"audio-input-microphone"},
-		{ "monitor",	"stock_volume"		},
+		{ "monitor",	"utilities-system-monitor"},
 		{ "output",	"audio-volume-high"	},
 		{ "pcm",	"audio-volume-high"	},
 		{ "rec",	"gtk-media-record"	},
-		{ "source",	"stock_line-in"		},
+		{ "source",	"audio-card"		},
 		{ "vol",	"audio-volume-high"	}
 	};
 	size_t i;
@@ -440,7 +441,7 @@ static GtkWidget * _new_frame_label(GdkPixbuf * pixbuf, char const * name,
 		/* more generic fallbacks */
 		if(strstr(name, "sel") != NULL)
 			pixbuf = gtk_icon_theme_load_icon(icontheme,
-					"stock_line-in", size,
+					"multimedia", size,
 					GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL);
 		else if(len > 5 && strcmp(&name[len - 5], ".mute") == 0)
 			pixbuf = gtk_icon_theme_load_icon(icontheme,
