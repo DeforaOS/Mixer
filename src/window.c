@@ -234,7 +234,7 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 	if(embedded == FALSE)
 	{
 		if(layout == ML_TABBED)
-			_mixer_menubar[3].menu = &_mixer_menu_view[3];
+			_mixer_menubar[1].menu = &_mixer_menu_view[3];
 		widget = desktop_menubar_create(_mixer_menubar, mixer, accel);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
