@@ -126,6 +126,35 @@ static const DesktopMenu _mixer_menu_view[] =
 	{ NULL, NULL, NULL, 0, 0 }
 };
 
+static const DesktopMenu _mixer_menu_view_tabbed[] =
+{
+	{ N_("_Fullscreen"), G_CALLBACK(on_view_fullscreen),
+# if GTK_CHECK_VERSION(2, 8, 0)
+		GTK_STOCK_FULLSCREEN,
+# else
+		NULL,
+# endif
+		0, GDK_KEY_F11 },
+	{ "", NULL, NULL, 0, 0 },
+# ifdef AUDIO_MIXER_DEVINFO
+	{ N_("_Outputs"), G_CALLBACK(on_view_outputs), "audio-volume-high",
+		GDK_CONTROL_MASK, GDK_KEY_O },
+	{ N_("_Inputs"), G_CALLBACK(on_view_inputs), "stock_mic",
+		GDK_CONTROL_MASK, GDK_KEY_I },
+	{ N_("_Record"), G_CALLBACK(on_view_record), "gtk-media-record",
+		GDK_CONTROL_MASK, GDK_KEY_R },
+	{ N_("Mo_nitor"), G_CALLBACK(on_view_monitor),
+		"utilities-system-monitor", GDK_CONTROL_MASK, GDK_KEY_N },
+	{ N_("_Equalization"), G_CALLBACK(on_view_equalization), "multimedia",
+		GDK_CONTROL_MASK, GDK_KEY_E },
+	{ N_("Mi_x"), G_CALLBACK(on_view_mix), "stock_volume", GDK_CONTROL_MASK,
+		GDK_KEY_X },
+	{ N_("_Modem"), G_CALLBACK(on_view_modem), "modem", GDK_CONTROL_MASK,
+		GDK_KEY_M },
+# endif
+	{ NULL, NULL, NULL, 0, 0 }
+};
+
 static const DesktopMenu _mixer_menu_help[] =
 {
 	{ N_("_Contents"), G_CALLBACK(on_help_contents), "help-contents", 0,
@@ -234,7 +263,7 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 	if(embedded == FALSE)
 	{
 		if(layout == ML_TABBED)
-			_mixer_menubar[1].menu = &_mixer_menu_view[3];
+			_mixer_menubar[1].menu = _mixer_menu_view_tabbed;
 		widget = desktop_menubar_create(_mixer_menubar, mixer, accel);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
