@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mixer 0.1.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-27 23:38+0200\n"
+"POT-Creation-Date: 2016-08-16 16:58+0200\n"
 "PO-Revision-Date: 2015-08-28 00:09+0100\n"
 "Last-Translator: Ana Carolina Rocha <carolina@defora.org>\n"
 "Language-Team: Spanish\n"
@@ -35,142 +35,142 @@ msgstr ""
 "  -d\tEl dispositivo de mezcla a utilizar\n"
 "  -x\tActivar modo integrado \n"
 
-#: ../src/mixer.c:234 ../src/window.c:158
+#: ../src/mixer.c:241 ../src/window.c:182
 msgid "All"
 msgstr "Todo"
 
-#: ../src/mixer.c:523
+#: ../src/mixer.c:542
 msgid "Mute"
 msgstr "Mute"
 
-#: ../src/mixer.c:635
+#: ../src/mixer.c:666
 msgid "Bind"
 msgstr "Liar"
 
-#: ../src/mixer.c:913 ../src/mixer.c:923 ../src/window.c:147
+#: ../src/mixer.c:950 ../src/mixer.c:960 ../src/window.c:171
 msgid "Properties"
 msgstr "Propiedades"
 
-#: ../src/mixer.c:934
+#: ../src/mixer.c:971
 msgid "Name: "
 msgstr "Nombre: "
 
-#: ../src/mixer.c:936
+#: ../src/mixer.c:973
 msgid "Version: "
 msgstr "Versión: "
 
-#: ../src/mixer.c:938
+#: ../src/mixer.c:975
 msgid "Device: "
 msgstr "Dispositivo: "
 
-#: ../src/mixer.c:1037 ../src/mixer.c:1042
+#: ../src/mixer.c:1083 ../src/mixer.c:1088
 msgid "Error"
 msgstr "Error"
 
-#: ../src/window.c:90
+#: ../src/window.c:84
 msgid "_Properties"
 msgstr "_Propiedades"
 
-#: ../src/window.c:93
+#: ../src/window.c:87
 msgid "_Close"
 msgstr "_Cerrar"
 
-#: ../src/window.c:100
+#: ../src/window.c:94 ../src/window.c:125
 msgid "_Fullscreen"
 msgstr "Pantalla Comple_ta"
 
-#: ../src/window.c:108
+#: ../src/window.c:102
 msgid "_All"
 msgstr "_Todo"
 
-#: ../src/window.c:111
+#: ../src/window.c:105 ../src/window.c:134
 msgid "_Outputs"
 msgstr "_Salida"
 
-#: ../src/window.c:113
+#: ../src/window.c:107 ../src/window.c:136
 msgid "_Inputs"
 msgstr "_Entrada"
 
-#: ../src/window.c:115
+#: ../src/window.c:109 ../src/window.c:138
 msgid "_Record"
 msgstr "_Grabar"
 
-#: ../src/window.c:117
+#: ../src/window.c:111 ../src/window.c:140
 msgid "Mo_nitor"
 msgstr "Mo_nitor"
 
-#: ../src/window.c:119
+#: ../src/window.c:113 ../src/window.c:142
 msgid "_Equalization"
 msgstr "_Ecualización"
 
-#: ../src/window.c:121
+#: ../src/window.c:115 ../src/window.c:144
 msgid "Mi_x"
 msgstr "Me_zclar"
 
-#: ../src/window.c:123
+#: ../src/window.c:117 ../src/window.c:146
 msgid "_Modem"
 msgstr "_Modem"
 
-#: ../src/window.c:131
+#: ../src/window.c:154
 msgid "_Contents"
 msgstr "_Contenidos"
 
-#: ../src/window.c:133
+#: ../src/window.c:156
 msgid "_About"
 msgstr "Acerca_de"
 
-#: ../src/window.c:139
+#: ../src/window.c:162
 msgid "_File"
 msgstr "_Archivo"
 
-#: ../src/window.c:140
+#: ../src/window.c:163
 msgid "_View"
 msgstr "_Vista"
 
-#: ../src/window.c:141
+#: ../src/window.c:164
 msgid "_Help"
 msgstr "A_yuda"
 
-#: ../src/window.c:150
+#: ../src/window.c:174
 msgid "Fullscreen"
 msgstr "Pantalla completa"
 
-#: ../src/window.c:159
+#: ../src/window.c:183
 msgid "Outputs"
 msgstr "Salida"
 
-#: ../src/window.c:161
+#: ../src/window.c:185
 msgid "Inputs"
 msgstr "Entrada"
 
-#: ../src/window.c:163
+#: ../src/window.c:187
 msgid "Record"
 msgstr "Grabar"
 
-#: ../src/window.c:165
+#: ../src/window.c:189
 msgid "Monitor"
 msgstr "Monitor"
 
-#: ../src/window.c:167
+#: ../src/window.c:191
 msgid "Equalization"
 msgstr "Ecualización"
 
-#: ../src/window.c:169
+#: ../src/window.c:193
 msgid "Mix"
 msgstr "Mezclar"
 
-#: ../src/window.c:170
+#: ../src/window.c:194
 msgid "Modem"
 msgstr "Modem"
 
-#: ../src/window.c:211 ../src/window.c:269
+#: ../src/window.c:234 ../src/window.c:298
 msgid "Mixer"
 msgstr "Mexclador"
 
-#: ../src/window.c:331
+#: ../src/window.c:372
 msgid "Volume mixer for the DeforaOS desktop"
 msgstr "Mezclador de volumen para el escritorio de DeforaOS"
 
-#: ../src/window.c:337
+#: ../src/window.c:378
 msgid "translator-credits"
 msgstr "Ana Carolina Rocha <carolina@defora.org>"
