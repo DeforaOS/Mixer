@@ -18,6 +18,7 @@ static char _license[] =
 
 
 
+#include <stdio.h>
 #include <string.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
