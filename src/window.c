@@ -170,7 +170,8 @@ static DesktopMenubar _mixer_menubar[] =
 	{ N_("_Help"), _mixer_menu_help },
 	{ NULL, NULL }
 };
-#else
+#endif /* !EMBEDDED */
+
 static DesktopToolbar _mixer_toolbar[] =
 {
 	{ N_("Properties"), G_CALLBACK(on_file_properties),
@@ -199,7 +200,6 @@ static DesktopToolbar _mixer_toolbar[] =
 	{ N_("Modem"), G_CALLBACK(on_view_modem), "modem", 0, 0, NULL },
 	{ NULL, NULL, NULL, 0, 0, NULL }
 };
-#endif /* EMBEDDED */
 
 
 /* public */
@@ -264,11 +264,16 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 	{
 		if(layout == ML_TABBED)
 			_mixer_menubar[1].menu = _mixer_menu_view_tabbed;
-		widget = desktop_menubar_create(_mixer_menubar, mixer, accel);
-		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
+		mixer->menubar = desktop_menubar_create(_mixer_menubar, mixer,
+				accel);
+		gtk_box_pack_start(GTK_BOX(vbox), mixer->menubar, FALSE, TRUE,
+				0);
 	}
+	else
+		mixer->menubar = NULL;
 #else
 	desktop_accel_create(_mixer_accel, mixer, accel);
+#endif
 	/* toolbar */
 	if(embedded == FALSE)
 	{
@@ -277,8 +282,9 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 		widget = desktop_toolbar_create(_mixer_toolbar, mixer, accel);
 		gtk_box_pack_start(GTK_BOX(vbox), widget, FALSE, TRUE, 0);
 	}
-#endif
+#ifndef EMBEDDED
 	g_object_unref(accel);
+#endif
 	widget = mixer_get_widget(mixer->mixer);
 	gtk_box_pack_start(GTK_BOX(vbox), widget, TRUE, TRUE, 0);
 	gtk_container_add(GTK_CONTAINER(mixer->window), vbox);
