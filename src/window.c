@@ -338,9 +338,21 @@ gboolean mixerwindow_get_fullscreen(MixerWindow * mixer)
 void mixerwindow_set_fullscreen(MixerWindow * mixer, gboolean fullscreen)
 {
 	if(fullscreen)
+	{
+#ifndef EMBEDDED
+		if(mixer->menubar != NULL)
+			gtk_widget_hide(mixer->menubar);
+#endif
 		gtk_window_fullscreen(GTK_WINDOW(mixer->window));
+	}
 	else
+	{
 		gtk_window_unfullscreen(GTK_WINDOW(mixer->window));
+#ifndef EMBEDDED
+		if(mixer->menubar != NULL)
+			gtk_widget_show(mixer->menubar);
+#endif
+	}
 	mixer->fullscreen = fullscreen;
 }
 
