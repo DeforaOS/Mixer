@@ -18,13 +18,6 @@ static char _license[] =
 
 
 
-#if defined(__NetBSD__)
-# include <sys/ioctl.h>
-# include <sys/audioio.h>
-#else
-# include <sys/ioctl.h>
-# include <sys/soundcard.h>
-#endif
 #include <string.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
