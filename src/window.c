@@ -226,7 +226,7 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 		mixer->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 		gtk_window_add_accel_group(GTK_WINDOW(mixer->window), accel);
 		gtk_window_set_default_size(GTK_WINDOW(mixer->window), 800,
-				300);
+				350);
 #if GTK_CHECK_VERSION(2, 6, 0)
 		gtk_window_set_icon_name(GTK_WINDOW(mixer->window),
 				"stock_volume");
