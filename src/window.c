@@ -142,8 +142,8 @@ static const DesktopMenu _mixer_menu_view_tabbed[] =
 		NULL,
 # endif
 		0, GDK_KEY_F11 },
-	{ "", NULL, NULL, 0, 0 },
 # ifdef AUDIO_MIXER_DEVINFO
+	{ "", NULL, NULL, 0, 0 },
 	{ N_("_Outputs"), G_CALLBACK(on_view_outputs), "audio-volume-high",
 		GDK_CONTROL_MASK, GDK_KEY_O },
 	{ N_("_Inputs"), G_CALLBACK(on_view_inputs), "stock_mic",
