@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2015 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2015-2016 Pierre Pronchery <khorben@defora.org> */
 static char _copyright[] =
 "Copyright © 2009-2016 Pierre Pronchery <khorben@defora.org>";
 /* This file is part of DeforaOS Desktop Mixer */
@@ -369,7 +369,7 @@ void mixerwindow_about(MixerWindow * mixer)
 				_about_on_closex), NULL);
 	desktop_about_dialog_set_authors(mixer->about, _authors);
 	desktop_about_dialog_set_comments(mixer->about,
-			_("Volume mixer for the DeforaOS desktop"));
+			_("Volume control for the DeforaOS desktop"));
 	desktop_about_dialog_set_copyright(mixer->about, _copyright);
 	desktop_about_dialog_set_license(mixer->about, _license);
 	desktop_about_dialog_set_logo_icon_name(mixer->about, "stock_volume");
