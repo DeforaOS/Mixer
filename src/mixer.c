@@ -210,16 +210,11 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
 				GTK_POLICY_AUTOMATIC, (layout == ML_VERTICAL)
 				? GTK_POLICY_AUTOMATIC : GTK_POLICY_NEVER);
-#if GTK_CHECK_VERSION(3, 0, 0)
 		hvbox = gtk_box_new((layout == ML_VERTICAL)
 				? GTK_ORIENTATION_VERTICAL
 				: GTK_ORIENTATION_HORIZONTAL, 0);
 		if(layout == ML_VERTICAL)
 			gtk_box_set_homogeneous(GTK_BOX(hvbox), TRUE);
-#else
-		hvbox = (layout == ML_VERTICAL) ? gtk_vbox_new(TRUE, 4)
-			: gtk_hbox_new(FALSE, 4);
-#endif
 		_mixer_scrolled_window_add(scrolled, hvbox);
 	}
 	for(i = 0;; i++)
@@ -244,11 +239,7 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 		p->hbox = NULL;
 		p->page = -1;
 #else
-# if GTK_CHECK_VERSION(3, 0, 0)
 		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-# else
-		hbox = gtk_hbox_new(FALSE, 4);
-# endif
 		if(mixer->notebook != NULL)
 		{
 			label = _new_frame_label(NULL, _("All"), NULL);
@@ -307,11 +298,7 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 		}
 		if(control == NULL)
 			continue;
-# if GTK_CHECK_VERSION(3, 0, 0)
 		vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
-# else
-		vbox2 = gtk_vbox_new(FALSE, 4);
-# endif
 		gtk_container_set_border_width(GTK_CONTAINER(vbox2), 4);
 		gtk_box_pack_start(GTK_BOX(vbox2), control, TRUE, TRUE, 0);
 		label = _new_frame_label(NULL, md.label.name, NULL);
@@ -321,12 +308,8 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 		gtk_container_add(GTK_CONTAINER(widget), vbox2);
 		if(hbox == NULL)
 		{
-# if GTK_CHECK_VERSION(3, 0, 0)
 			mixer->mc[u].hbox = gtk_box_new(
 					GTK_ORIENTATION_HORIZONTAL, 4);
-# else
-			mixer->mc[u].hbox = gtk_hbox_new(FALSE, 4);
-# endif
 			hbox = mixer->mc[u].hbox;
 			gtk_container_set_border_width(GTK_CONTAINER(hbox), 4);
 			if(mixer->notebook != NULL)
@@ -438,11 +421,7 @@ static GtkWidget * _new_frame_label(GdkPixbuf * pixbuf, char const * name,
 	const int size = 16;
 
 	icontheme = gtk_icon_theme_get_default();
-#if GTK_CHECK_VERSION(3, 0, 0)
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#else
-	hbox = gtk_hbox_new(FALSE, 4);
-#endif
 	for(i = 0; pixbuf == NULL && i < sizeof(icons) / sizeof(*icons); i++)
 		if(strncmp(icons[i].name, name, strlen(icons[i].name)) == 0)
 			pixbuf = gtk_icon_theme_load_icon(icontheme,
@@ -496,11 +475,7 @@ static GtkWidget * _new_enum(Mixer * mixer, int dev,
 		free(mc);
 		return NULL;
 	}
-# if GTK_CHECK_VERSION(3, 0, 0)
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-# else
-	vbox = gtk_vbox_new(TRUE, 0);
-# endif
 	for(i = 0; i < e->num_mem; i++)
 	{
 		widget = gtk_radio_button_new_with_label(group,
@@ -548,7 +523,7 @@ static GtkWidget * _new_mute(Mixer * mixer, int dev,
 	g_signal_connect(widget, "notify::active",
 			G_CALLBACK(_new_mute_on_notify), mixer);
 # else
-	hbox = gtk_hbox_new(FALSE, 4);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 	widget = gtk_image_new_from_icon_name("audio-volume-muted",
 			GTK_ICON_SIZE_BUTTON);
 	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
@@ -581,12 +556,8 @@ static GtkWidget * _new_set(Mixer * mixer, int dev, struct audio_mixer_set * s)
 		free(mc);
 		return NULL;
 	}
-# if GTK_CHECK_VERSION(3, 0, 0)
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_box_set_homogeneous(GTK_BOX(vbox), TRUE);
-# else
-	vbox = gtk_vbox_new(TRUE, 0);
-# endif
 	for(i = 0; i < s->num_mem; i++)
 	{
 		widget = gtk_check_button_new_with_label(
@@ -668,11 +639,7 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 	/* bind button */
 	if(mc->un.level.channels_cnt >= 2)
 	{
-#if GTK_CHECK_VERSION(3, 0, 0)
 		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#else
-		hbox = gtk_hbox_new(FALSE, 4);
-#endif
 		image = gtk_image_new_from_stock(GTK_STOCK_CONNECT,
 				GTK_ICON_SIZE_BUTTON);
 		gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, TRUE, 0);
@@ -685,11 +652,7 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 					_new_bind_on_toggled), image);
 	}
 	/* sliders */
-#if GTK_CHECK_VERSION(3, 0, 0)
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#else
-	hbox = gtk_hbox_new(FALSE, 0);
-#endif
 	for(i = 0; i < mc->un.level.channels_cnt; i++)
 	{
 #if GTK_CHECK_VERSION(3, 0, 0)
@@ -717,11 +680,7 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 		return hbox;
 	align = gtk_alignment_new(0.5, 0.5, 0.0, 1.0);
 	gtk_container_add(GTK_CONTAINER(align), hbox);
-#if GTK_CHECK_VERSION(3, 0, 0)
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
-#else
-	vbox = gtk_vbox_new(FALSE, 4);
-#endif
 	gtk_box_pack_start(GTK_BOX(vbox), align, TRUE, TRUE, 0);
 	g_object_set_data(G_OBJECT(bind), "list", list);
 	gtk_container_add(GTK_CONTAINER(*bbox), bind);
@@ -997,11 +956,7 @@ static GtkWidget * _properties_label(Mixer * mixer, GtkSizeGroup * group,
 	GtkWidget * hbox;
 	GtkWidget * widget;
 
-#if GTK_CHECK_VERSION(3, 0, 0)
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#else
-	hbox = gtk_hbox_new(FALSE, 4);
-#endif
 	widget = gtk_label_new(label);
 #if GTK_CHECK_VERSION(3, 0, 0)
 	gtk_widget_override_font(widget, mixer->bold);
