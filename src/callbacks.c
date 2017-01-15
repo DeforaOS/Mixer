@@ -46,6 +46,8 @@
 /* on_closex */
 gboolean on_closex(gpointer data)
 {
+	(void) data;
+
 	gtk_main_quit();
 	return TRUE;
 }
@@ -174,5 +176,7 @@ void on_help_about(gpointer data)
 /* on_help_contents */
 void on_help_contents(gpointer data)
 {
+	(void) data;
+
 	desktop_help_contents(PACKAGE, "mixer");
 }
