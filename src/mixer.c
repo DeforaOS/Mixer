@@ -592,6 +592,7 @@ static void _new_mute_on_notify(GObject * object, GParamSpec * spec,
 		gpointer data)
 {
 	Mixer * mixer = data;
+	(void) spec;
 
 	mixer_set_mute(mixer, GTK_WIDGET(object));
 }
