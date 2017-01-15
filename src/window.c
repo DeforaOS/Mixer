@@ -1,7 +1,7 @@
 /* $Id$ */
 /* Copyright (c) 2015-2016 Pierre Pronchery <khorben@defora.org> */
 static char _copyright[] =
-"Copyright © 2009-2016 Pierre Pronchery <khorben@defora.org>";
+"Copyright © 2009-2017 Pierre Pronchery <khorben@defora.org>";
 /* This file is part of DeforaOS Desktop Mixer */
 static char _license[] =
 "All rights reserved.\n"
