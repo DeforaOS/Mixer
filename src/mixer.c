@@ -618,7 +618,9 @@ static void _new_set_on_toggled(GtkWidget * widget, gpointer data)
 
 static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 {
+#if !GTK_CHECK_VERSION(3, 14, 0)
 	GtkWidget * align;
+#endif
 	GtkWidget * vbox;
 	GtkWidget * hbox;
 	GtkWidget * image;
@@ -679,10 +681,15 @@ static GtkWidget * _new_value(Mixer * mixer, int index, GtkWidget ** bbox)
 	}
 	if(mc->un.level.channels_cnt < 2)
 		return hbox;
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+#if GTK_CHECK_VERSION(3, 14, 0)
+	gtk_widget_set_halign(hbox, GTK_ALIGN_CENTER);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 0);
+#else
 	align = gtk_alignment_new(0.5, 0.5, 0.0, 1.0);
 	gtk_container_add(GTK_CONTAINER(align), hbox);
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 	gtk_box_pack_start(GTK_BOX(vbox), align, TRUE, TRUE, 0);
+#endif
 	g_object_set_data(G_OBJECT(bind), "list", list);
 	gtk_container_add(GTK_CONTAINER(*bbox), bind);
 	gtk_box_pack_start(GTK_BOX(vbox), *bbox, FALSE, TRUE, 0);
