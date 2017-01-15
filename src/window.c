@@ -193,6 +193,7 @@ static DesktopToolbar _mixer_toolbar[] =
 		0, GDK_KEY_F11, NULL },
 	{ NULL, NULL, NULL, 0, 0, NULL },
 	{ N_("All"), G_CALLBACK(on_view_all), "stock_select-all", 0, 0, NULL },
+# ifdef AUDIO_MIXER_DEVINFO
 	{ N_("Outputs"), G_CALLBACK(on_view_outputs), "audio-volume-high", 0, 0,
 		NULL },
 	{ N_("Inputs"), G_CALLBACK(on_view_inputs), "stock_line-in", 0, 0,
@@ -205,6 +206,7 @@ static DesktopToolbar _mixer_toolbar[] =
 		0, NULL },
 	{ N_("Mix"), G_CALLBACK(on_view_mix), "stock_volume", 0, 0, NULL },
 	{ N_("Modem"), G_CALLBACK(on_view_modem), "modem", 0, 0, NULL },
+# endif
 	{ NULL, NULL, NULL, 0, 0, NULL }
 };
 
