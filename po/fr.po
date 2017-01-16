@@ -5,16 +5,16 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Mixer 0.1.2\n"
+"Project-Id-Version: Mixer 0.2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-14 19:10+0200\n"
+"POT-Creation-Date: 2017-01-16 01:02+0100\n"
 "PO-Revision-Date: 2010-04-23 04:08+0200\n"
 "Last-Translator: Pierre Pronchery <khorben@defora.org>\n"
 "Language-Team: French\n"
-"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../src/main.c:89
@@ -34,35 +34,35 @@ msgstr ""
 "  -d\tChoix du périphérique sonore\n"
 "  -x\tActiver le mode embarqué\n"
 
-#: ../src/mixer.c:254 ../src/window.c:195
+#: ../src/mixer.c:245 ../src/window.c:195
 msgid "All"
 msgstr "Tous"
 
-#: ../src/mixer.c:555
+#: ../src/mixer.c:530
 msgid "Mute"
 msgstr "Muet"
 
-#: ../src/mixer.c:679
+#: ../src/mixer.c:649
 msgid "Bind"
 msgstr "Lier"
 
-#: ../src/mixer.c:963 ../src/mixer.c:973 ../src/window.c:184
+#: ../src/mixer.c:930 ../src/mixer.c:940 ../src/window.c:184
 msgid "Properties"
 msgstr "Propriétés"
 
-#: ../src/mixer.c:984
+#: ../src/mixer.c:951
 msgid "Name: "
 msgstr "Nom : "
 
-#: ../src/mixer.c:986
+#: ../src/mixer.c:953
 msgid "Version: "
 msgstr "Version : "
 
-#: ../src/mixer.c:988
+#: ../src/mixer.c:955
 msgid "Device: "
 msgstr "Carte : "
 
-#: ../src/mixer.c:1096 ../src/mixer.c:1101
+#: ../src/mixer.c:1059 ../src/mixer.c:1064
 msgid "Error"
 msgstr "Erreur"
 
@@ -134,42 +134,42 @@ msgstr "_Aide"
 msgid "Fullscreen"
 msgstr "Plein écran"
 
-#: ../src/window.c:196
+#: ../src/window.c:197
 msgid "Outputs"
 msgstr "Sorties"
 
-#: ../src/window.c:198
+#: ../src/window.c:199
 msgid "Inputs"
 msgstr "Entrées"
 
-#: ../src/window.c:200
+#: ../src/window.c:201
 msgid "Record"
 msgstr "Enregistrement"
 
-#: ../src/window.c:202
+#: ../src/window.c:203
 msgid "Monitor"
 msgstr "Suivi"
 
-#: ../src/window.c:204
+#: ../src/window.c:205
 msgid "Equalization"
 msgstr "Égalisation"
 
-#: ../src/window.c:206
+#: ../src/window.c:207
 msgid "Mix"
 msgstr "Mix"
 
-#: ../src/window.c:207
+#: ../src/window.c:208
 msgid "Modem"
 msgstr "Modem"
 
-#: ../src/window.c:247 ../src/window.c:311
+#: ../src/window.c:249 ../src/window.c:309
 msgid "Mixer"
 msgstr "Contrôle du volume"
 
-#: ../src/window.c:385
+#: ../src/window.c:383
 msgid "Volume control for the DeforaOS desktop"
 msgstr "Contrôle du volume pour l'environnement DeforaOS"
 
-#: ../src/window.c:391
+#: ../src/window.c:389
 msgid "translator-credits"
 msgstr "Pierre Pronchery <khorben@defora.org>"
