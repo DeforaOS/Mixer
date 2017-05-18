@@ -111,6 +111,8 @@ static const DesktopMenu _mixer_menu_view[] =
 		NULL,
 # endif
 		0, GDK_KEY_F11 },
+	{ N_("_Refresh"), G_CALLBACK(on_refresh), "refresh", GDK_CONTROL_MASK,
+		GDK_KEY_R },
 	{ "", NULL, NULL, 0, 0 },
 	{ N_("_All"), G_CALLBACK(on_view_all), "stock_select-all",
 		GDK_CONTROL_MASK, GDK_KEY_A },
@@ -142,6 +144,8 @@ static const DesktopMenu _mixer_menu_view_tabbed[] =
 		NULL,
 # endif
 		0, GDK_KEY_F11 },
+	{ N_("_Refresh"), G_CALLBACK(on_refresh), "refresh", GDK_CONTROL_MASK,
+		GDK_KEY_R },
 # ifdef AUDIO_MIXER_DEVINFO
 	{ "", NULL, NULL, 0, 0 },
 	{ N_("_Outputs"), G_CALLBACK(on_view_outputs), "audio-volume-high",
@@ -191,6 +195,8 @@ static DesktopToolbar _mixer_toolbar[] =
 		"gtk-fullscreen",
 # endif
 		0, GDK_KEY_F11, NULL },
+	{ N_("_Refresh"), G_CALLBACK(on_refresh), "refresh", GDK_CONTROL_MASK,
+		GDK_KEY_R },
 	{ NULL, NULL, NULL, 0, 0, NULL },
 	{ N_("All"), G_CALLBACK(on_view_all), "stock_select-all", 0, 0, NULL },
 # ifdef AUDIO_MIXER_DEVINFO

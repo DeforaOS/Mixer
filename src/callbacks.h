@@ -41,6 +41,7 @@ void on_embedded(gpointer data);
 /* menubar */
 void on_file_properties(gpointer data);
 void on_file_close(gpointer data);
+void on_refresh(gpointer data);
 
 void on_help_about(gpointer data);
 void on_help_contents(gpointer data);

@@ -39,6 +39,67 @@
 #include "callbacks.h"
 #include "../config.h"
 
+struct _MixerWindow
+{
+	Mixer * mixer;
+	gboolean fullscreen;
+
+	/* widgets */
+	GtkWidget * window;
+#ifndef EMBEDDED
+	GtkWidget * menubar;
+#endif
+	GtkWidget * about;
+};
+
+#ifdef AUDIO_MIXER_DEVINFO
+typedef struct _MixerClass
+{
+	int mixer_class;
+	audio_mixer_name_t label;
+	GtkWidget * hbox;
+	int page;
+} MixerClass;
+#endif
+
+typedef struct _MixerLevel
+{
+	uint8_t channels[8];
+	size_t channels_cnt;
+} MixerLevel;
+
+typedef struct _MixerControl
+{
+	int index;
+	int type;
+	union {
+		int ord;
+		int mask;
+		MixerLevel level;
+	} un;
+} MixerControl;
+
+struct _Mixer
+{
+	/* widgets */
+	GtkWidget * window;
+	GtkWidget * widget;
+	GtkWidget * notebook;
+	GtkWidget * properties;
+	PangoFontDescription * bold;
+
+	/* internals */
+	char * device;
+#ifdef AUDIO_MIXER_DEVINFO
+	int fd;
+
+	MixerClass * mc;
+	size_t mc_cnt;
+#else
+	int fd;
+#endif
+};
+
 
 /* public */
 /* functions */
@@ -52,6 +113,20 @@ gboolean on_closex(gpointer data)
 	return TRUE;
 }
 
+
+/* on_refresh */
+void on_refresh(gpointer data)
+{
+	MixerWindow * mixer = data;
+	GtkWidget * vbox;
+	GtkWidget * widget;
+
+
+	mixerwindow_delete(mixer);
+	mixer= mixerwindow_new("/dev/mixer", ML_TABBED, FALSE);
+
+	mixerwindow_show(mixer);
+}
 
 /* on_embedded */
 void on_embedded(gpointer data)
