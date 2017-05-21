@@ -66,6 +66,8 @@ MixerControl * mixercontrol_new(String const * id, String const * icon,
 		return NULL;
 	control->id = string_new(id);
 	control->handle = plugin_new(LIBDIR, PACKAGE, "controls", type);
+	control->definition = NULL;
+	control->plugin = NULL;
 	control->frame = NULL;
 	va_start(ap, type);
 	if(control->id == NULL
