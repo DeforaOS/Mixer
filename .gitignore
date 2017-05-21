@@ -2,4 +2,7 @@ Makefile
 /config.h
 /config.sh
 *~
+*.dll
+*.dylib
 *.o
+*.so
