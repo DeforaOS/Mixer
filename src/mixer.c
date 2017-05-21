@@ -284,12 +284,8 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 				control = _new_set(mixer, i, &md.un.s);
 				break;
 			case AUDIO_MIXER_VALUE:
-# if GTK_CHECK_VERSION(3, 0, 0)
 				bbox = gtk_button_box_new(
 						GTK_ORIENTATION_VERTICAL);
-# else
-				bbox = gtk_vbutton_box_new();
-# endif
 				gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox),
 						GTK_BUTTONBOX_START);
 				gtk_size_group_add_widget(vgroup, bbox);
