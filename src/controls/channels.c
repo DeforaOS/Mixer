@@ -29,8 +29,10 @@
 
 
 #include <stdlib.h>
+#include <libintl.h>
 #include <System/object.h>
 #include "Mixer/control.h"
+#define _(string) gettext(string)
 
 
 /* MixerControlChannels */
@@ -93,6 +95,8 @@ static MixerControlPlugin * _channels_init(String const * type,
 		va_list properties)
 {
 	MixerControlPlugin * channels;
+	GtkWidget * hbox;
+	GtkWidget * widget;
 #if !GTK_CHECK_VERSION(3, 14, 0)
 	GtkWidget * align;
 #endif
@@ -114,15 +118,30 @@ static MixerControlPlugin * _channels_init(String const * type,
 	gtk_container_add(GTK_CONTAINER(align), channels->hbox);
 	gtk_box_pack_start(GTK_BOX(channels->widget), align, TRUE, TRUE, 0);
 #endif
-# if GTK_CHECK_VERSION(3, 0, 0)
+#if GTK_CHECK_VERSION(3, 0, 0)
 	channels->mute = gtk_switch_new();
 #else
 	channels->mute = gtk_toggle_button_new();
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+	widget = gtk_image_new_from_icon_name("audio-volume-muted",
+			GTK_ICON_SIZE_BUTTON);
+	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	widget = gtk_label_new(_("Mute"));
+	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+	gtk_container_add(GTK_CONTAINER(channels->mute), hbox);
 #endif
 	/* FIXME really implement */
 	gtk_box_pack_end(GTK_BOX(channels->widget), channels->mute, FALSE, TRUE,
 			0);
 	channels->bind = gtk_toggle_button_new();
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+	widget = gtk_image_new_from_stock(GTK_STOCK_CONNECT,
+			GTK_ICON_SIZE_BUTTON);
+	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	widget = gtk_label_new(_("Bind"));
+	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+	gtk_widget_show_all(hbox);
+	gtk_container_add(GTK_CONTAINER(channels->bind), hbox);
 	/* FIXME really implement */
 	gtk_widget_set_no_show_all(channels->bind, TRUE);
 	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind, FALSE, TRUE,
