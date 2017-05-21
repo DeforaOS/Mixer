@@ -99,6 +99,7 @@ MixerControl * mixercontrol_new(String const * id, String const * icon,
 	gtk_misc_set_alignment(GTK_MISC(control->name), 0.0, 0.5);
 #endif
 	gtk_box_pack_start(GTK_BOX(hbox), control->name, TRUE, TRUE, 0);
+	gtk_frame_set_label_widget(GTK_FRAME(control->frame), hbox);
 	return control;
 }
 
