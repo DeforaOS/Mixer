@@ -114,7 +114,11 @@ static MixerControlPlugin * _channels_init(String const * type,
 	gtk_container_add(GTK_CONTAINER(align), channels->hbox);
 	gtk_box_pack_start(GTK_BOX(channels->widget), align, TRUE, TRUE, 0);
 #endif
+# if GTK_CHECK_VERSION(3, 0, 0)
+	channels->mute = gtk_switch_new();
+#else
 	channels->mute = gtk_toggle_button_new();
+#endif
 	/* FIXME really implement */
 	gtk_box_pack_end(GTK_BOX(channels->widget), channels->mute,
 			FALSE, TRUE, 0);
@@ -241,7 +245,11 @@ static int _set_channels(MixerControlPlugin * channels, guint cnt,
 
 static void _set_mute(MixerControlPlugin * channels, gboolean mute)
 {
+# if GTK_CHECK_VERSION(3, 0, 0)
+	gtk_switch_set_active(GTK_SWITCH(channels->mute), mute);
+#else
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(channels->mute), mute);
+#endif
 }
 
 static void _set_value(MixerControlPlugin * channels, gdouble value)
