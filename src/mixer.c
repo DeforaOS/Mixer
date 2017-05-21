@@ -1160,7 +1160,6 @@ static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control)
 	control->un.level.channels_cnt = 2;
 	control->un.level.channels[0] = ((value & 0xff) * 255) / 100;
 	control->un.level.channels[1] = (((value >> 8) & 0xff) * 255) / 100;
-	return 0;
 #endif
 	return 0;
 }
