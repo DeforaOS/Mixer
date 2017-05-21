@@ -100,6 +100,7 @@ MixerControl * mixercontrol_new(String const * id, String const * icon,
 #endif
 	gtk_box_pack_start(GTK_BOX(hbox), control->name, TRUE, TRUE, 0);
 	gtk_frame_set_label_widget(GTK_FRAME(control->frame), hbox);
+	gtk_container_add(GTK_CONTAINER(control->frame), control->widget);
 	return control;
 }
 
