@@ -83,6 +83,7 @@ static MixerControlPlugin * _set_init(String const * type, va_list properties)
 	if((set = object_new(sizeof(*set))) == NULL)
 		return NULL;
 	set->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+	gtk_container_set_border_width(GTK_CONTAINER(set->widget), 4);
 	set->sets = NULL;
 	set->sets_cnt = 0;
 	if(_set_set(set, properties) != 0)

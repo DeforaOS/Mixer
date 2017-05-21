@@ -90,6 +90,7 @@ static MixerControlPlugin * _radio_init(String const * type, va_list properties)
 	if((radio = object_new(sizeof(*radio))) == NULL)
 		return NULL;
 	radio->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+	gtk_container_set_border_width(GTK_CONTAINER(radio->widget), 4);
 	radio->radio = NULL;
 	radio->radio_cnt = 0;
 	if(_radio_set(radio, properties) != 0)

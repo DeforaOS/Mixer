@@ -81,6 +81,7 @@ static MixerControlPlugin * _mute_init(String const * type, va_list properties)
 	if((mute = object_new(sizeof(*mute))) == NULL)
 		return NULL;
 	mute->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+	gtk_container_set_border_width(GTK_CONTAINER(mute->widget), 4);
 	mute->mute = gtk_toggle_button_new();
 	g_signal_connect(mute->mute, "toggled", G_CALLBACK(_mute_on_toggled),
 			mute);

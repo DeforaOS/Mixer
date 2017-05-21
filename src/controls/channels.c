@@ -101,6 +101,7 @@ static MixerControlPlugin * _channels_init(String const * type,
 	if((channels = object_new(sizeof(*channels))) == NULL)
 		return NULL;
 	channels->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+	gtk_container_set_border_width(GTK_CONTAINER(channels->widget), 4);
 	channels->channels = NULL;
 	channels->channels_cnt = 0;
 	channels->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
