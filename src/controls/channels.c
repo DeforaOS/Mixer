@@ -93,6 +93,9 @@ static MixerControlPlugin * _channels_init(String const * type,
 		va_list properties)
 {
 	MixerControlPlugin * channels;
+#if !GTK_CHECK_VERSION(3, 14, 0)
+	GtkWidget * align;
+#endif
 	(void) type;
 
 	if((channels = object_new(sizeof(*channels))) == NULL)
@@ -101,8 +104,15 @@ static MixerControlPlugin * _channels_init(String const * type,
 	channels->channels = NULL;
 	channels->channels_cnt = 0;
 	channels->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#if GTK_CHECK_VERSION(3, 14, 0)
+	gtk_widget_set_halign(channels->hbox, GTK_ALIGN_CENTER);
 	gtk_box_pack_start(GTK_BOX(channels->widget), channels->hbox, TRUE,
 			TRUE, 0);
+#else
+	align = gtk_alignment_new(0.5, 0.5, 0.0, 1.0);
+	gtk_container_add(GTK_CONTAINER(align), channels->hbox);
+	gtk_box_pack_start(GTK_BOX(channels->widget), align, TRUE, TRUE, 0);
+#endif
 	if(_channels_set(channels, properties) != 0)
 	{
 		_channels_destroy(channels);
