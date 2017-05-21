@@ -120,13 +120,13 @@ static MixerControlPlugin * _channels_init(String const * type,
 	channels->mute = gtk_toggle_button_new();
 #endif
 	/* FIXME really implement */
-	gtk_box_pack_end(GTK_BOX(channels->widget), channels->mute,
-			FALSE, TRUE, 0);
+	gtk_box_pack_end(GTK_BOX(channels->widget), channels->mute, FALSE, TRUE,
+			0);
 	channels->bind = gtk_toggle_button_new();
 	/* FIXME really implement */
 	gtk_widget_set_no_show_all(channels->bind, TRUE);
-	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind,
-			FALSE, TRUE, 0);
+	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind, FALSE, TRUE,
+			0);
 	if(_channels_set(channels, properties) != 0)
 	{
 		_channels_destroy(channels);
