@@ -154,7 +154,9 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 {
 	Mixer * mixer;
 	GtkSizeGroup * hgroup;
+#ifndef AUDIO_MIXER_DEVINFO
 	GtkSizeGroup * vgroup;
+#endif
 	GtkWidget * scrolled = NULL;
 	GtkWidget * label;
 	GtkWidget * widget;
@@ -190,7 +192,9 @@ Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout)
 	mixer->mc_cnt = 0;
 #endif
 	hgroup = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+#ifndef AUDIO_MIXER_DEVINFO
 	vgroup = gtk_size_group_new(GTK_SIZE_GROUP_VERTICAL);
+#endif
 	if(mixer->device == NULL || mixer->fd < 0)
 	{
 		_mixer_error(NULL, device, 0);
