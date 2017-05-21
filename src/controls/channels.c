@@ -114,19 +114,20 @@ static MixerControlPlugin * _channels_init(String const * type,
 	gtk_container_add(GTK_CONTAINER(align), channels->hbox);
 	gtk_box_pack_start(GTK_BOX(channels->widget), align, TRUE, TRUE, 0);
 #endif
+	channels->mute = gtk_toggle_button_new();
+	/* FIXME really implement */
+	gtk_box_pack_end(GTK_BOX(channels->widget), channels->mute,
+			FALSE, TRUE, 0);
+	channels->bind = gtk_toggle_button_new();
+	/* FIXME really implement */
+	gtk_widget_set_no_show_all(channels->bind, TRUE);
+	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind,
+			FALSE, TRUE, 0);
 	if(_channels_set(channels, properties) != 0)
 	{
 		_channels_destroy(channels);
 		return NULL;
 	}
-	channels->bind = gtk_toggle_button_new();
-	/* FIXME really implement */
-	gtk_box_pack_start(GTK_BOX(channels->widget), channels->bind,
-			FALSE, TRUE, 0);
-	channels->mute = gtk_toggle_button_new();
-	/* FIXME really implement */
-	gtk_box_pack_start(GTK_BOX(channels->widget), channels->mute,
-			FALSE, TRUE, 0);
 	return channels;
 }
 
@@ -209,7 +210,10 @@ static int _set_channels(MixerControlPlugin * channels, guint cnt,
 	{
 		for(i = cnt; i < channels->channels_cnt; i++)
 			g_object_unref(channels->channels[i].widget);
-		channels->channels_cnt = cnt;
+		if((channels->channels_cnt = cnt) < 2)
+			gtk_widget_hide(channels->bind);
+		else
+			gtk_widget_show(channels->bind);
 		return 0;
 	}
 	if((p = realloc(channels->channels, sizeof(*p) * cnt)) == NULL)
@@ -228,7 +232,10 @@ static int _set_channels(MixerControlPlugin * channels, guint cnt,
 		gtk_box_pack_start(GTK_BOX(channels->hbox), p->widget, TRUE,
 				TRUE, 0);
 	}
-	channels->channels_cnt = cnt;
+	if((channels->channels_cnt = cnt) < 2)
+		gtk_widget_hide(channels->bind);
+	else
+		gtk_widget_show(channels->bind);
 	return 0;
 }
 
