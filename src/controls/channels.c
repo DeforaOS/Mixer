@@ -71,6 +71,8 @@ static int _channels_set(MixerControlPlugin * channels,
 		va_list properties);
 
 /* callbacks */
+static void _channels_on_bind_toggled(GtkWidget * widget, gpointer data);
+
 static void _channels_on_changed(gpointer data);
 
 
@@ -96,6 +98,7 @@ static MixerControlPlugin * _channels_init(String const * type,
 {
 	MixerControlPlugin * channels;
 	GtkWidget * hbox;
+	GtkWidget * image;
 	GtkWidget * widget;
 #if !GTK_CHECK_VERSION(3, 14, 0)
 	GtkWidget * align;
@@ -135,15 +138,17 @@ static MixerControlPlugin * _channels_init(String const * type,
 			0);
 	channels->bind = gtk_toggle_button_new();
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-	widget = gtk_image_new_from_stock(GTK_STOCK_CONNECT,
+	image = gtk_image_new_from_icon_name("gtk-connect",
 			GTK_ICON_SIZE_BUTTON);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, TRUE, 0);
 	widget = gtk_label_new(_("Bind"));
 	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 	gtk_widget_show_all(hbox);
 	gtk_container_add(GTK_CONTAINER(channels->bind), hbox);
-	/* FIXME really implement */
 	gtk_widget_set_no_show_all(channels->bind, TRUE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(channels->bind), TRUE);
+	g_signal_connect(channels->bind, "toggled", G_CALLBACK(
+				_channels_on_bind_toggled), image);
 	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind, FALSE, TRUE,
 			0);
 	if(_channels_set(channels, properties) != 0)
@@ -283,6 +288,19 @@ static void _set_value(MixerControlPlugin * channels, gdouble value)
 
 
 /* callbacks */
+/* channels_on_bind_toggled */
+static void _channels_on_bind_toggled(GtkWidget * widget, gpointer data)
+{
+	GtkWidget * image = data;
+	gboolean active;
+
+	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+	gtk_image_set_from_icon_name(GTK_IMAGE(image),
+			active ? "gtk-connect" : "gtk-disconnect",
+			GTK_ICON_SIZE_BUTTON);
+}
+
+
 /* channels_on_changed */
 static void _channels_on_changed(gpointer data)
 {
