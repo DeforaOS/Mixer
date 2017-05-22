@@ -28,6 +28,7 @@
 
 
 
+#include <stdlib.h>
 #include <System/object.h>
 #include "Mixer/control.h"
 
@@ -46,8 +47,9 @@ struct _MixerControlPlugin
 {
 	GtkWidget * widget;
 
-	MixerControlRadio * radio;
-	size_t radio_cnt;
+	GSList * group;
+	MixerControlRadio * radios;
+	size_t radios_cnt;
 };
 
 
@@ -59,8 +61,7 @@ static void _radio_destroy(MixerControlPlugin * radio);
 
 static GtkWidget * _radio_get_widget(MixerControlPlugin * radio);
 
-static int _radio_set(MixerControlPlugin * radio,
-		va_list properties);
+static int _radio_set(MixerControlPlugin * radio, va_list properties);
 
 /* callbacks */
 
@@ -91,8 +92,9 @@ static MixerControlPlugin * _radio_init(String const * type, va_list properties)
 		return NULL;
 	radio->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 	gtk_container_set_border_width(GTK_CONTAINER(radio->widget), 4);
-	radio->radio = NULL;
-	radio->radio_cnt = 0;
+	radio->group = NULL;
+	radio->radios = NULL;
+	radio->radios_cnt = 0;
 	if(_radio_set(radio, properties) != 0)
 	{
 		_radio_destroy(radio);
@@ -105,6 +107,7 @@ static MixerControlPlugin * _radio_init(String const * type, va_list properties)
 /* radio_destroy */
 static void _radio_destroy(MixerControlPlugin * radio)
 {
+	free(radio->radios);
 	g_object_unref(radio->widget);
 	object_delete(radio);
 }
@@ -119,11 +122,15 @@ static GtkWidget * _radio_get_widget(MixerControlPlugin * radio)
 
 
 /* radio_set */
+static int _set_label(MixerControlPlugin * radio, guint pos,
+		String const * label);
 static void _set_value(MixerControlPlugin * radio, guint value);
 
 static int _radio_set(MixerControlPlugin * radio, va_list properties)
 {
 	String const * p;
+	String const * s;
+	unsigned int u;
 	guint value;
 
 	while((p = va_arg(properties, String const *)) != NULL)
@@ -133,10 +140,47 @@ static int _radio_set(MixerControlPlugin * radio, va_list properties)
 			value = va_arg(properties, guint);
 			_set_value(radio, value);
 		}
+		else if(sscanf(p, "label%u", &u) == 1)
+		{
+			s = va_arg(properties, String const *);
+			if(_set_label(radio, u, s) != 0)
+				return -1;
+		}
 		else
 			/* FIXME report the error */
 			return -1;
 	}
+	return 0;
+}
+
+static int _set_label(MixerControlPlugin * radio, guint pos,
+		String const * label)
+{
+	guint i;
+	MixerControlRadio * p;
+
+	if(pos >= radio->radios_cnt)
+	{
+		if((p = realloc(radio->radios, sizeof(*p) * (pos + 1))) == NULL)
+			return -1;
+		radio->radios = p;
+	}
+	for(i = radio->radios_cnt; i < pos; i++)
+	{
+		radio->radios[i].plugin = radio;
+		/* FIXME set the correct label */
+		radio->radios[i].widget = gtk_radio_button_new_with_label(
+				radio->group, label);
+		/* FIXME implement the callback */
+		if(radio->group == NULL)
+			radio->group = gtk_radio_button_get_group(
+					GTK_RADIO_BUTTON(
+						radio->radios[i].widget));
+		gtk_box_pack_start(GTK_BOX(radio->widget),
+				radio->radios[i].widget, FALSE, TRUE, 0);
+	}
+	radio->radios_cnt = pos;
+	gtk_widget_show_all(radio->widget);
 	return 0;
 }
 
