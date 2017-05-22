@@ -62,6 +62,10 @@ MixerControl * mixercontrol_new(String const * id, String const * icon,
 	va_list ap;
 	GtkWidget * hbox;
 
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(\"%s\", \"%s\", \"%s\")\n", __func__, id,
+			name, type);
+#endif
 	if((control = object_new(sizeof(*control))) == NULL)
 		return NULL;
 	control->id = string_new(id);
@@ -83,6 +87,10 @@ MixerControl * mixercontrol_new(String const * id, String const * icon,
 					control->plugin)) == NULL)
 	{
 		va_end(ap);
+#ifdef DEBUG
+		fprintf(stderr, "DEBUG: %s() => NULL %p %p\n", __func__,
+				control->handle, control->definition);
+#endif
 		mixercontrol_delete(control);
 		return NULL;
 	}
