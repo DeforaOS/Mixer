@@ -54,6 +54,8 @@ struct _MixerControlPlugin
 	MixerControlChannel * channels;
 	size_t channels_cnt;
 
+	GtkWidget * bbox;
+
 	/* bind */
 	GtkWidget * bind;
 	GtkWidget * bind_image;
@@ -74,8 +76,7 @@ static void _channels_destroy(MixerControlPlugin * channels);
 
 static GtkWidget * _channels_get_widget(MixerControlPlugin * channels);
 
-static int _channels_set(MixerControlPlugin * channels,
-		va_list properties);
+static int _channels_set(MixerControlPlugin * channels, va_list properties);
 
 /* callbacks */
 static void _channels_on_bind_toggled(gpointer data);
@@ -133,6 +134,8 @@ static MixerControlPlugin * _channels_init(String const * type,
 	gtk_container_add(GTK_CONTAINER(align), channels->hbox);
 	gtk_box_pack_start(GTK_BOX(channels->widget), align, TRUE, TRUE, 0);
 #endif
+	channels->bbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+	gtk_box_set_homogeneous(GTK_BOX(channels->bbox), TRUE);
 	/* bind */
 	channels->bind = gtk_toggle_button_new();
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
@@ -146,8 +149,9 @@ static MixerControlPlugin * _channels_init(String const * type,
 	gtk_widget_set_no_show_all(channels->bind, TRUE);
 	g_signal_connect_swapped(channels->bind, "toggled", G_CALLBACK(
 				_channels_on_bind_toggled), channels);
-	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind, FALSE, TRUE,
-			0);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), channels->bind, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(channels->bbox), hbox, FALSE, TRUE, 0);
 	/* mute */
 #if GTK_CHECK_VERSION(3, 0, 0)
 	channels->mute = gtk_switch_new();
@@ -167,7 +171,10 @@ static MixerControlPlugin * _channels_init(String const * type,
 				_channels_on_mute_toggled), channels);
 #endif
 	gtk_widget_set_no_show_all(channels->mute, TRUE);
-	gtk_box_pack_end(GTK_BOX(channels->widget), channels->mute, FALSE, TRUE,
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), channels->mute, TRUE, TRUE, 0);
+	gtk_box_pack_end(GTK_BOX(channels->bbox), hbox, FALSE, TRUE, 0);
+	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bbox, FALSE, TRUE,
 			0);
 	if(_channels_set(channels, properties) != 0)
 	{
@@ -200,12 +207,14 @@ static int _set_channels(MixerControlPlugin * channels, guint cnt,
 		gdouble value);
 static void _set_mute(MixerControlPlugin * channels, gboolean mute);
 static void _set_value(MixerControlPlugin * channels, gdouble value);
+static void _set_value_channel(MixerControlPlugin * channels, guint channel,
+		gdouble value);
 
-static int _channels_set(MixerControlPlugin * channels,
-		va_list properties)
+static int _channels_set(MixerControlPlugin * channels, va_list properties)
 {
 	String const * p;
 	gboolean b;
+	GtkSizeGroup * group;
 	guint u;
 	gdouble value = 0.0;
 
@@ -244,6 +253,11 @@ static int _channels_set(MixerControlPlugin * channels,
 			value = va_arg(properties, gboolean);
 			value ? gtk_widget_show(channels->mute)
 				: gtk_widget_hide(channels->mute);
+		}
+		else if(string_compare(p, "vgroup") == 0)
+		{
+			group = va_arg(properties, GtkSizeGroup *);
+			gtk_size_group_add_widget(group, channels->bbox);
 		}
 		else
 			/* FIXME report the error */
