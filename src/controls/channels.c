@@ -225,6 +225,11 @@ static int _channels_set(MixerControlPlugin * channels, va_list properties)
 			value = va_arg(properties, gdouble);
 			_set_value(channels, value);
 		}
+		else if(sscanf(p, "value%u", &u) == 1)
+		{
+			value = va_arg(properties, gdouble);
+			_set_value_channel(channels, u, value);
+		}
 		else if(string_compare(p, "bind") == 0)
 		{
 			b = va_arg(properties, gboolean);
@@ -323,11 +328,21 @@ static void _set_mute(MixerControlPlugin * channels, gboolean mute)
 static void _set_value(MixerControlPlugin * channels, gdouble value)
 {
 	size_t i;
+
+	for(i = 0; i < channels->channels_cnt; i++)
+		_set_value_channel(channels, i, value);
+}
+
+static void _set_value_channel(MixerControlPlugin * channels, guint channel,
+		gdouble value)
+{
 	gdouble v;
 
-	v = (value / 255.0) * 100.0;
-	for(i = 0; i < channels->channels_cnt; i++)
-		gtk_range_set_value(GTK_RANGE(channels->channels[i].widget), v);
+	v = (value * 100.0) / 255.0;
+	if(channel < channels->channels_cnt)
+		gtk_range_set_value(
+				GTK_RANGE(channels->channels[channel].widget),
+				v);
 }
 
 
