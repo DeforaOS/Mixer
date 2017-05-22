@@ -233,6 +233,18 @@ static int _channels_set(MixerControlPlugin * channels,
 			b = va_arg(properties, gboolean);
 			_set_mute(channels, b);
 		}
+		else if(string_compare(p, "show-bind") == 0)
+		{
+			value = va_arg(properties, gboolean);
+			value ? gtk_widget_show(channels->bind)
+				: gtk_widget_hide(channels->bind);
+		}
+		else if(string_compare(p, "show-mute") == 0)
+		{
+			value = va_arg(properties, gboolean);
+			value ? gtk_widget_show(channels->mute)
+				: gtk_widget_hide(channels->mute);
+		}
 		else
 			/* FIXME report the error */
 			return -1;
