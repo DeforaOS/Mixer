@@ -203,34 +203,23 @@ static GtkWidget * _channels_get_widget(MixerControlPlugin * channels)
 
 /* channels_set */
 static void _set_bind(MixerControlPlugin * channels, gboolean bind);
-static int _set_channels(MixerControlPlugin * channels, guint cnt,
-		gdouble value);
+static int _set_channels(MixerControlPlugin * channels, unsigned int cnt);
 static void _set_mute(MixerControlPlugin * channels, gboolean mute);
 static void _set_value(MixerControlPlugin * channels, gdouble value);
-static void _set_value_channel(MixerControlPlugin * channels, guint channel,
-		gdouble value);
+static void _set_value_channel(MixerControlPlugin * channels,
+		unsigned int channel, gdouble value);
 
 static int _channels_set(MixerControlPlugin * channels, va_list properties)
 {
 	String const * p;
 	gboolean b;
 	GtkSizeGroup * group;
-	guint u;
+	unsigned int u;
 	gdouble value = 0.0;
 
 	while((p = va_arg(properties, String const *)) != NULL)
 	{
-		if(string_compare(p, "value") == 0)
-		{
-			value = va_arg(properties, gdouble);
-			_set_value(channels, value);
-		}
-		else if(sscanf(p, "value%u", &u) == 1)
-		{
-			value = va_arg(properties, gdouble);
-			_set_value_channel(channels, u, value);
-		}
-		else if(string_compare(p, "bind") == 0)
+		if(string_compare(p, "bind") == 0)
 		{
 			b = va_arg(properties, gboolean);
 			_set_bind(channels, b);
@@ -238,8 +227,7 @@ static int _channels_set(MixerControlPlugin * channels, va_list properties)
 		else if(string_compare(p, "channels") == 0)
 		{
 			u = va_arg(properties, unsigned int);
-			/* FIXME look for the initial value first */
-			if(_set_channels(channels, u, value) != 0)
+			if(_set_channels(channels, u) != 0)
 				return -1;
 		}
 		else if(string_compare(p, "mute") == 0)
@@ -259,6 +247,16 @@ static int _channels_set(MixerControlPlugin * channels, va_list properties)
 			value ? gtk_widget_show(channels->mute)
 				: gtk_widget_hide(channels->mute);
 		}
+		else if(string_compare(p, "value") == 0)
+		{
+			value = va_arg(properties, gdouble);
+			_set_value(channels, value);
+		}
+		else if(sscanf(p, "value%u", &u) == 1)
+		{
+			value = va_arg(properties, gdouble);
+			_set_value_channel(channels, u, value);
+		}
 		else if(string_compare(p, "vgroup") == 0)
 		{
 			group = va_arg(properties, GtkSizeGroup *);
@@ -276,8 +274,7 @@ static void _set_bind(MixerControlPlugin * channels, gboolean bind)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(channels->bind), bind);
 }
 
-static int _set_channels(MixerControlPlugin * channels, guint cnt,
-		gdouble value)
+static int _set_channels(MixerControlPlugin * channels, unsigned int cnt)
 {
 	size_t i;
 	MixerControlChannel * p;
@@ -303,7 +300,7 @@ static int _set_channels(MixerControlPlugin * channels, guint cnt,
 		p->widget = gtk_scale_new_with_range(GTK_ORIENTATION_VERTICAL,
 				0.0, 100.0, 1.0);
 		gtk_range_set_inverted(GTK_RANGE(p->widget), TRUE);
-		gtk_range_set_value(GTK_RANGE(p->widget), value);
+		gtk_range_set_value(GTK_RANGE(p->widget), 0.0);
 		g_signal_connect(p->widget, "value-changed", G_CALLBACK(
 					_channels_on_changed), p);
 		gtk_box_pack_start(GTK_BOX(channels->hbox), p->widget, TRUE,
@@ -333,8 +330,8 @@ static void _set_value(MixerControlPlugin * channels, gdouble value)
 		_set_value_channel(channels, i, value);
 }
 
-static void _set_value_channel(MixerControlPlugin * channels, guint channel,
-		gdouble value)
+static void _set_value_channel(MixerControlPlugin * channels,
+		unsigned int channel, gdouble value)
 {
 	gdouble v;
 
