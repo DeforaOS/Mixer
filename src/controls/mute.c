@@ -28,8 +28,10 @@
 
 
 
-#include "Mixer/control.h"
+#include <libintl.h>
 #include <System/object.h>
+#include "Mixer/control.h"
+#define _(string) gettext(string)
 
 
 /* MixerControlMute */
@@ -40,6 +42,9 @@ struct _MixerControlPlugin
 	GtkWidget * widget;
 
 	GtkWidget * mute;
+#if !GTK_CHECK_VERSION(3, 0, 0)
+	GtkWidget * mute_image;
+#endif
 };
 
 
@@ -53,7 +58,11 @@ static GtkWidget * _mute_get_widget(MixerControlPlugin * mute);
 static int _mute_set(MixerControlPlugin * mute, va_list properties);
 
 /* callbacks */
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void _mute_on_notify_active(gpointer data);
+#else
 static void _mute_on_toggled(gpointer data);
+#endif
 
 
 /* public */
@@ -76,16 +85,33 @@ MixerControlDefinition control =
 static MixerControlPlugin * _mute_init(String const * type, va_list properties)
 {
 	MixerControlPlugin * mute;
+#if !GTK_CHECK_VERSION(3, 0, 0)
+	GtkWidget * hbox;
+	GtkWidget * widget;
+#endif
 	(void) type;
 
 	if((mute = object_new(sizeof(*mute))) == NULL)
 		return NULL;
 	mute->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 	gtk_container_set_border_width(GTK_CONTAINER(mute->widget), 4);
+#if GTK_CHECK_VERSION(3, 0, 0)
+	mute->mute = gtk_switch_new();
+	g_signal_connect_swapped(mute->mute, "notify::active",
+			G_CALLBACK(_mute_on_notify_active), mute);
+#else
 	mute->mute = gtk_toggle_button_new();
-	g_signal_connect(mute->mute, "toggled", G_CALLBACK(_mute_on_toggled),
-			mute);
-	gtk_box_pack_start(GTK_BOX(mute->widget), mute->mute, FALSE, TRUE, 0);
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+	mute->mute_image = gtk_image_new_from_icon_name("audio-volume-high",
+			GTK_ICON_SIZE_BUTTON);
+	gtk_box_pack_start(GTK_BOX(hbox), mute->mute_image, FALSE, TRUE, 0);
+	widget = gtk_label_new(_("Mute"));
+	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+	gtk_container_add(GTK_CONTAINER(mute->mute), hbox);
+	g_signal_connect_swapped(mute->mute, "toggled",
+			G_CALLBACK(_mute_on_toggled), mute);
+#endif
+	gtk_box_pack_end(GTK_BOX(mute->widget), mute->mute, FALSE, TRUE, 0);
 	if(_mute_set(mute, properties) != 0)
 	{
 		_mute_destroy(mute);
@@ -122,8 +148,12 @@ static int _mute_set(MixerControlPlugin * mute, va_list properties)
 		if(string_compare(p, "value") == 0)
 		{
 			value = va_arg(properties, gboolean);
+#if GTK_CHECK_VERSION(3, 0, 0)
+			gtk_switch_set_active(GTK_SWITCH(mute->mute), value);
+#else
 			gtk_toggle_button_set_active(
 					GTK_TOGGLE_BUTTON(mute->mute), value);
+#endif
 		}
 		else
 			/* FIXME report the error */
@@ -134,10 +164,28 @@ static int _mute_set(MixerControlPlugin * mute, va_list properties)
 
 
 /* callbacks */
+#if GTK_CHECK_VERSION(3, 0, 0)
+/* mute_on_notify_active */
+static void _mute_on_notify_active(gpointer data)
+{
+	MixerControlPlugin * mute = data;
+	gboolean active;
+
+	active = gtk_switch_get_active(GTK_SWITCH(mute->mute));
+	/* FIXME implement */
+}
+#else
 /* mute_on_toggled */
 static void _mute_on_toggled(gpointer data)
 {
 	MixerControlPlugin * mute = data;
 
+	gboolean active;
+
+	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mute->mute));
+	gtk_image_set_from_icon_name(GTK_IMAGE(mute->mute_image),
+			active ? "audio-volume-muted" : "audio-volume-high",
+			GTK_ICON_SIZE_BUTTON);
 	/* FIXME implement */
 }
+#endif
