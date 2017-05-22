@@ -159,7 +159,10 @@ static int _set_label(MixerControlPlugin * radio, guint pos,
 	guint i;
 	MixerControlRadio * p;
 
-	/* FIXME free and reduce if necessary */
+	/* delete buttons as required */
+	if(radio->radios_cnt >= pos)
+		for(i = pos; i < radio->radios_cnt; i++)
+			g_object_unref(radio->radios[i].widget);
 	if(pos >= radio->radios_cnt)
 	{
 		if((p = realloc(radio->radios, sizeof(*p) * (pos + 1))) == NULL)
