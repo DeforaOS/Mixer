@@ -40,6 +40,8 @@ typedef struct _MixerControlSet
 {
 	MixerControlPlugin * plugin;
 
+	unsigned int value;
+
 	GtkWidget * widget;
 } MixerControlSet;
 
@@ -116,28 +118,45 @@ static GtkWidget * _set_get_widget(MixerControlPlugin * set)
 
 
 /* set_set */
-static int _set_label(MixerControlPlugin * set, guint pos,
+static int _set_label(MixerControlPlugin * set, unsigned int pos,
 		String const * label);
-static void _set_value(MixerControlPlugin * set, guint value);
+static int _set_members(MixerControlPlugin * set, unsigned int cnt);
+static int _set_value(MixerControlPlugin * set, unsigned int value);
+static int _set_value_pos(MixerControlPlugin * set, unsigned int pos,
+		unsigned int value);
 
 static int _set_set(MixerControlPlugin * set, va_list properties)
 {
 	String const * p;
 	String const * s;
 	unsigned int u;
-	guint value;
+	unsigned int value;
 
 	while((p = va_arg(properties, String const *)) != NULL)
 	{
-		if(string_compare(p, "value") == 0)
-		{
-			value = va_arg(properties, guint);
-			_set_value(set, value);
-		}
-		else if(sscanf(p, "label%u", &u) == 1)
+		if(sscanf(p, "label%u", &u) == 1)
 		{
 			s = va_arg(properties, String const *);
-			_set_label(set, u, s);
+			if(_set_label(set, u, s) != 0)
+				return -1;
+		}
+		else if(string_compare(p, "members") == 0)
+		{
+			u = va_arg(properties, unsigned int);
+			if(_set_members(set, u) != 0)
+				return -1;
+		}
+		else if(string_compare(p, "value") == 0)
+		{
+			value = va_arg(properties, unsigned int);
+			if(_set_value(set, value) != 0)
+				return -1;
+		}
+		else if(sscanf(p, "value%u", &u) == 1)
+		{
+			value = va_arg(properties, unsigned int);
+			if(_set_value_pos(set, u, value) != 0)
+				return -1;
 		}
 		else
 			/* FIXME report the error */
@@ -146,38 +165,62 @@ static int _set_set(MixerControlPlugin * set, va_list properties)
 	return 0;
 }
 
-static int _set_label(MixerControlPlugin * set, guint pos, String const * label)
+static int _set_label(MixerControlPlugin * set, unsigned int pos,
+		String const * label)
 {
-	guint i;
+	if(pos >= set->sets_cnt)
+		return -1;
+	gtk_button_set_label(GTK_BUTTON(set->sets[pos].widget), label);
+	return 0;
+}
+
+static int _set_members(MixerControlPlugin * set, unsigned int cnt)
+{
+	size_t i;
 	MixerControlSet * p;
 
 	/* delete buttons as required */
-	if(set->sets_cnt >= pos)
-		for(i = pos; i < set->sets_cnt; i++)
+	if(set->sets_cnt >= cnt)
+	{
+		for(i = cnt; i < set->sets_cnt; i++)
 			g_object_unref(set->sets[i].widget);
-	if(pos >= set->sets_cnt)
-	{
-		if((p = realloc(set->sets, sizeof(*p) * (pos + 1))) == NULL)
-			return -1;
-		set->sets = p;
+		set->sets_cnt = cnt;
+		return 0;
 	}
-	for(i = set->sets_cnt; i < pos; i++)
+	if((p = realloc(set->sets, sizeof(*p) * cnt)) == NULL)
+		return -1;
+	set->sets = p;
+	for(i = set->sets_cnt; i < cnt; i++)
 	{
-		set->sets[i].plugin = set;
-		/* FIXME set the correct label */
-		set->sets[i].widget = gtk_check_button_new_with_label(label);
+		p = &set->sets[i];
+		p->plugin = set;
+		p->value = 0;
+		p->widget = gtk_check_button_new();
+		gtk_widget_set_sensitive(p->widget, FALSE);
 		/* FIXME implement the callback */
-		gtk_box_pack_start(GTK_BOX(set->widget), set->sets[i].widget,
-				FALSE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(set->widget), p->widget, FALSE, TRUE,
+				0);
 	}
-	set->sets_cnt = pos;
+	set->sets_cnt = cnt;
 	gtk_widget_show_all(set->widget);
 	return 0;
 }
 
-static void _set_value(MixerControlPlugin * set, guint value)
+static int _set_value(MixerControlPlugin * set, unsigned int value)
 {
 	/* FIXME implement */
+	return 0;
+}
+
+static int _set_value_pos(MixerControlPlugin * set, unsigned int pos,
+		unsigned int value)
+{
+	if(pos >= set->sets_cnt)
+		return -1;
+	set->sets[pos].value = value;
+	gtk_widget_set_sensitive(set->sets[pos].widget, (value != 0)
+			? TRUE : FALSE);
+	return 0;
 }
 
 

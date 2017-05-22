@@ -40,6 +40,8 @@ typedef struct _MixerControlRadio
 {
 	MixerControlPlugin * plugin;
 
+	unsigned int value;
+
 	GtkWidget * widget;
 } MixerControlRadio;
 
@@ -122,28 +124,44 @@ static GtkWidget * _radio_get_widget(MixerControlPlugin * radio)
 
 
 /* radio_set */
-static int _set_label(MixerControlPlugin * radio, guint pos,
+static int _set_label(MixerControlPlugin * radio, unsigned int pos,
 		String const * label);
-static void _set_value(MixerControlPlugin * radio, guint value);
+static int _set_members(MixerControlPlugin * radio, unsigned int cnt);
+static int _set_value(MixerControlPlugin * radio, unsigned int value);
+static int _set_value_pos(MixerControlPlugin * radio, unsigned int pos,
+		unsigned int value);
 
 static int _radio_set(MixerControlPlugin * radio, va_list properties)
 {
 	String const * p;
 	String const * s;
 	unsigned int u;
-	guint value;
+	unsigned int value;
 
 	while((p = va_arg(properties, String const *)) != NULL)
 	{
-		if(string_compare(p, "value") == 0)
-		{
-			value = va_arg(properties, guint);
-			_set_value(radio, value);
-		}
-		else if(sscanf(p, "label%u", &u) == 1)
+		if(sscanf(p, "label%u", &u) == 1)
 		{
 			s = va_arg(properties, String const *);
 			if(_set_label(radio, u, s) != 0)
+				return -1;
+		}
+		else if(string_compare(p, "members") == 0)
+		{
+			u = va_arg(properties, unsigned int);
+			if(_set_members(radio, u) != 0)
+				return -1;
+		}
+		else if(string_compare(p, "value") == 0)
+		{
+			value = va_arg(properties, unsigned int);
+			if(_set_value(radio, value) != 0)
+				return -1;
+		}
+		else if(sscanf(p, "value%u", &u) == 1)
+		{
+			value = va_arg(properties, unsigned int);
+			if(_set_value_pos(radio, u, value) != 0)
 				return -1;
 		}
 		else
@@ -153,44 +171,65 @@ static int _radio_set(MixerControlPlugin * radio, va_list properties)
 	return 0;
 }
 
-static int _set_label(MixerControlPlugin * radio, guint pos,
+static int _set_label(MixerControlPlugin * radio, unsigned int pos,
 		String const * label)
 {
-	guint i;
+	if(pos >= radio->radios_cnt)
+		return -1;
+	gtk_button_set_label(GTK_BUTTON(radio->radios[pos].widget), label);
+	return 0;
+}
+
+static int _set_members(MixerControlPlugin * radio, unsigned int cnt)
+{
+	size_t i;
 	MixerControlRadio * p;
 
 	/* delete buttons as required */
-	if(radio->radios_cnt >= pos)
-		for(i = pos; i < radio->radios_cnt; i++)
+	if(radio->radios_cnt >= cnt)
+	{
+		for(i = cnt; i < radio->radios_cnt; i++)
 			g_object_unref(radio->radios[i].widget);
-	if(pos >= radio->radios_cnt)
-	{
-		if((p = realloc(radio->radios, sizeof(*p) * (pos + 1))) == NULL)
-			return -1;
-		radio->radios = p;
+		radio->radios_cnt = cnt;
+		return 0;
 	}
-	for(i = radio->radios_cnt; i < pos; i++)
+	if((p = realloc(radio->radios, sizeof(*p) * cnt)) == NULL)
+		return -1;
+	radio->radios = p;
+	for(i = radio->radios_cnt; i < cnt; i++)
 	{
-		radio->radios[i].plugin = radio;
-		/* FIXME set the correct label */
-		radio->radios[i].widget = gtk_radio_button_new_with_label(
-				radio->group, label);
+		p = &radio->radios[i];
+		p->plugin = radio;
+		p->value = 0;
+		p->widget = gtk_radio_button_new(radio->group);
+		gtk_widget_set_sensitive(p->widget, FALSE);
 		/* FIXME implement the callback */
 		if(radio->group == NULL)
 			radio->group = gtk_radio_button_get_group(
-					GTK_RADIO_BUTTON(
-						radio->radios[i].widget));
-		gtk_box_pack_start(GTK_BOX(radio->widget),
-				radio->radios[i].widget, FALSE, TRUE, 0);
+					GTK_RADIO_BUTTON(p->widget));
+		gtk_box_pack_start(GTK_BOX(radio->widget), p->widget, FALSE,
+				TRUE, 0);
 	}
-	radio->radios_cnt = pos;
+	radio->radios_cnt = cnt;
 	gtk_widget_show_all(radio->widget);
 	return 0;
 }
 
-static void _set_value(MixerControlPlugin * radio, guint value)
+static int _set_value(MixerControlPlugin * radio, unsigned int value)
 {
 	/* FIXME implement */
+	return 0;
+}
+
+static int _set_value_pos(MixerControlPlugin * radio, unsigned int pos,
+		unsigned int value)
+{
+	if(pos >= radio->radios_cnt)
+		return -1;
+	radio->radios[pos].value = value;
+	gtk_widget_set_sensitive(radio->radios[pos].widget, (value != 0)
+			? TRUE : FALSE);
+	return 0;
 }
 
 
