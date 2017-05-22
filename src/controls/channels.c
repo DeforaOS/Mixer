@@ -49,6 +49,8 @@ struct _MixerControlPlugin
 {
 	GtkWidget * widget;
 
+	unsigned int delta;
+
 	/* channels */
 	GtkWidget * hbox;
 	MixerControlChannel * channels;
@@ -122,6 +124,7 @@ static MixerControlPlugin * _channels_init(String const * type,
 		return NULL;
 	channels->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 	gtk_container_set_border_width(GTK_CONTAINER(channels->widget), 4);
+	channels->delta = 1;
 	channels->channels = NULL;
 	channels->channels_cnt = 0;
 	channels->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
@@ -204,6 +207,7 @@ static GtkWidget * _channels_get_widget(MixerControlPlugin * channels)
 /* channels_set */
 static void _set_bind(MixerControlPlugin * channels, gboolean bind);
 static int _set_channels(MixerControlPlugin * channels, unsigned int cnt);
+static void _set_delta(MixerControlPlugin * channels, unsigned int delta);
 static void _set_mute(MixerControlPlugin * channels, gboolean mute);
 static void _set_value(MixerControlPlugin * channels, gdouble value);
 static void _set_value_channel(MixerControlPlugin * channels,
@@ -229,6 +233,11 @@ static int _channels_set(MixerControlPlugin * channels, va_list properties)
 			u = va_arg(properties, unsigned int);
 			if(_set_channels(channels, u) != 0)
 				return -1;
+		}
+		else if(string_compare(p, "delta") == 0)
+		{
+			u = va_arg(properties, unsigned int);
+			_set_delta(channels, u);
 		}
 		else if(string_compare(p, "mute") == 0)
 		{
@@ -298,7 +307,7 @@ static int _set_channels(MixerControlPlugin * channels, unsigned int cnt)
 		p = &channels->channels[i];
 		p->plugin = channels;
 		p->widget = gtk_scale_new_with_range(GTK_ORIENTATION_VERTICAL,
-				0.0, 100.0, 1.0);
+				0.0, 100.0, channels->delta);
 		gtk_range_set_inverted(GTK_RANGE(p->widget), TRUE);
 		gtk_range_set_value(GTK_RANGE(p->widget), 0.0);
 		g_signal_connect(p->widget, "value-changed", G_CALLBACK(
@@ -311,6 +320,17 @@ static int _set_channels(MixerControlPlugin * channels, unsigned int cnt)
 	else
 		gtk_widget_show(channels->bind);
 	return 0;
+}
+
+static void _set_delta(MixerControlPlugin * channels, unsigned int delta)
+{
+	size_t i;
+
+	channels->delta = delta;
+	for(i = 0; i < channels->channels_cnt; i++)
+		gtk_range_set_increments(
+				GTK_RANGE(channels->channels[i].widget), delta,
+				delta);
 }
 
 static void _set_mute(MixerControlPlugin * channels, gboolean mute)
