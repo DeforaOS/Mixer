@@ -133,6 +133,22 @@ static MixerControlPlugin * _channels_init(String const * type,
 	gtk_container_add(GTK_CONTAINER(align), channels->hbox);
 	gtk_box_pack_start(GTK_BOX(channels->widget), align, TRUE, TRUE, 0);
 #endif
+	/* bind */
+	channels->bind = gtk_toggle_button_new();
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+	channels->bind_image = gtk_image_new_from_icon_name("gtk-connect",
+			GTK_ICON_SIZE_BUTTON);
+	gtk_box_pack_start(GTK_BOX(hbox), channels->bind_image, FALSE, TRUE, 0);
+	widget = gtk_label_new(_("Bind"));
+	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+	gtk_widget_show_all(hbox);
+	gtk_container_add(GTK_CONTAINER(channels->bind), hbox);
+	gtk_widget_set_no_show_all(channels->bind, TRUE);
+	g_signal_connect_swapped(channels->bind, "toggled", G_CALLBACK(
+				_channels_on_bind_toggled), channels);
+	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind, FALSE, TRUE,
+			0);
+	/* mute */
 #if GTK_CHECK_VERSION(3, 0, 0)
 	channels->mute = gtk_switch_new();
 	g_signal_connect_swapped(channels->mute, "notify::active",
@@ -145,26 +161,13 @@ static MixerControlPlugin * _channels_init(String const * type,
 	gtk_box_pack_start(GTK_BOX(hbox), channels->mute_image, FALSE, TRUE, 0);
 	widget = gtk_label_new(_("Mute"));
 	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
+	gtk_widget_show_all(hbox);
 	gtk_container_add(GTK_CONTAINER(channels->mute), hbox);
 	g_signal_connect_swapped(channels->mute, "toggled", G_CALLBACK(
 				_channels_on_mute_toggled), channels);
 #endif
+	gtk_widget_set_no_show_all(channels->mute, TRUE);
 	gtk_box_pack_end(GTK_BOX(channels->widget), channels->mute, FALSE, TRUE,
-			0);
-	channels->bind = gtk_toggle_button_new();
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-	channels->bind_image = gtk_image_new_from_icon_name("gtk-connect",
-			GTK_ICON_SIZE_BUTTON);
-	gtk_box_pack_start(GTK_BOX(hbox), channels->bind_image, FALSE, TRUE, 0);
-	widget = gtk_label_new(_("Bind"));
-	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
-	gtk_widget_show_all(hbox);
-	gtk_container_add(GTK_CONTAINER(channels->bind), hbox);
-	gtk_widget_set_no_show_all(channels->bind, TRUE);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(channels->bind), TRUE);
-	g_signal_connect_swapped(channels->bind, "toggled", G_CALLBACK(
-				_channels_on_bind_toggled), channels);
-	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind, FALSE, TRUE,
 			0);
 	if(_channels_set(channels, properties) != 0)
 	{
