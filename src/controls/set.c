@@ -28,6 +28,7 @@
 
 
 
+#include <stdlib.h>
 #include <System/object.h>
 #include "Mixer/control.h"
 
@@ -37,6 +38,8 @@
 /* types */
 typedef struct _MixerControlSet
 {
+	MixerControlPlugin * plugin;
+
 	GtkWidget * widget;
 } MixerControlSet;
 
@@ -98,6 +101,7 @@ static MixerControlPlugin * _set_init(String const * type, va_list properties)
 /* set_destroy */
 static void _set_destroy(MixerControlPlugin * set)
 {
+	free(set->sets);
 	g_object_unref(set->widget);
 	object_delete(set);
 }
@@ -112,11 +116,15 @@ static GtkWidget * _set_get_widget(MixerControlPlugin * set)
 
 
 /* set_set */
+static int _set_label(MixerControlPlugin * set, guint pos,
+		String const * label);
 static void _set_value(MixerControlPlugin * set, guint value);
 
 static int _set_set(MixerControlPlugin * set, va_list properties)
 {
 	String const * p;
+	String const * s;
+	unsigned int u;
 	guint value;
 
 	while((p = va_arg(properties, String const *)) != NULL)
@@ -126,6 +134,11 @@ static int _set_set(MixerControlPlugin * set, va_list properties)
 			value = va_arg(properties, guint);
 			_set_value(set, value);
 		}
+		else if(sscanf(p, "label%u", &u) == 1)
+		{
+			s = va_arg(properties, String const *);
+			_set_label(set, u, s);
+		}
 		else
 			/* FIXME report the error */
 			return -1;
@@ -133,7 +146,36 @@ static int _set_set(MixerControlPlugin * set, va_list properties)
 	return 0;
 }
 
+static int _set_label(MixerControlPlugin * set, guint pos, String const * label)
+{
+	guint i;
+	MixerControlSet * p;
+
+	if(pos >= set->sets_cnt)
+	{
+		if((p = realloc(set->sets, sizeof(*p) * (pos + 1))) == NULL)
+			return -1;
+		set->sets = p;
+	}
+	for(i = set->sets_cnt; i < pos; i++)
+	{
+		set->sets[i].plugin = set;
+		/* FIXME set the correct label */
+		set->sets[i].widget = gtk_check_button_new_with_label(label);
+		/* FIXME implement the callback */
+		gtk_box_pack_start(GTK_BOX(set->widget), set->sets[i].widget,
+				FALSE, TRUE, 0);
+	}
+	set->sets_cnt = pos;
+	gtk_widget_show_all(set->widget);
+	return 0;
+}
+
 static void _set_value(MixerControlPlugin * set, guint value)
 {
 	/* FIXME implement */
 }
+
+
+/* callbacks */
+/* FIXME implement */
