@@ -151,6 +151,7 @@ static int _set_label(MixerControlPlugin * set, guint pos, String const * label)
 	guint i;
 	MixerControlSet * p;
 
+	/* FIXME free and reduce if necessary */
 	if(pos >= set->sets_cnt)
 	{
 		if((p = realloc(set->sets, sizeof(*p) * (pos + 1))) == NULL)

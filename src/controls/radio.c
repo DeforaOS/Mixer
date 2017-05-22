@@ -159,6 +159,7 @@ static int _set_label(MixerControlPlugin * radio, guint pos,
 	guint i;
 	MixerControlRadio * p;
 
+	/* FIXME free and reduce if necessary */
 	if(pos >= radio->radios_cnt)
 	{
 		if((p = realloc(radio->radios, sizeof(*p) * (pos + 1))) == NULL)
