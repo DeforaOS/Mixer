@@ -54,8 +54,15 @@ struct _MixerControlPlugin
 	MixerControlChannel * channels;
 	size_t channels_cnt;
 
+	/* bind */
 	GtkWidget * bind;
+	GtkWidget * bind_image;
+
+	/* mute */
 	GtkWidget * mute;
+#if !GTK_CHECK_VERSION(3, 0, 0)
+	GtkWidget * mute_image;
+#endif
 };
 
 
@@ -71,9 +78,15 @@ static int _channels_set(MixerControlPlugin * channels,
 		va_list properties);
 
 /* callbacks */
-static void _channels_on_bind_toggled(GtkWidget * widget, gpointer data);
+static void _channels_on_bind_toggled(gpointer data);
 
-static void _channels_on_changed(gpointer data);
+static void _channels_on_changed(GtkWidget * widget, gpointer data);
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void _channels_on_mute_notify_active(gpointer data);
+#else
+static void _channels_on_mute_toggled(gpointer data);
+#endif
 
 
 /* public */
@@ -98,7 +111,6 @@ static MixerControlPlugin * _channels_init(String const * type,
 {
 	MixerControlPlugin * channels;
 	GtkWidget * hbox;
-	GtkWidget * image;
 	GtkWidget * widget;
 #if !GTK_CHECK_VERSION(3, 14, 0)
 	GtkWidget * align;
@@ -123,32 +135,35 @@ static MixerControlPlugin * _channels_init(String const * type,
 #endif
 #if GTK_CHECK_VERSION(3, 0, 0)
 	channels->mute = gtk_switch_new();
+	g_signal_connect_swapped(channels->mute, "notify::active",
+			G_CALLBACK(_channels_on_mute_notify_active), channels);
 #else
 	channels->mute = gtk_toggle_button_new();
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-	widget = gtk_image_new_from_icon_name("audio-volume-muted",
-			GTK_ICON_SIZE_BUTTON);
-	gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
+	channels->mute_image = gtk_image_new_from_icon_name(
+			"audio-volume-muted", GTK_ICON_SIZE_BUTTON);
+	gtk_box_pack_start(GTK_BOX(hbox), channels->mute_image, FALSE, TRUE, 0);
 	widget = gtk_label_new(_("Mute"));
 	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 	gtk_container_add(GTK_CONTAINER(channels->mute), hbox);
+	g_signal_connect_swapped(channels->mute, "toggled", G_CALLBACK(
+				_channels_on_mute_toggled), channels);
 #endif
-	/* FIXME really implement */
 	gtk_box_pack_end(GTK_BOX(channels->widget), channels->mute, FALSE, TRUE,
 			0);
 	channels->bind = gtk_toggle_button_new();
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-	image = gtk_image_new_from_icon_name("gtk-connect",
+	channels->bind_image = gtk_image_new_from_icon_name("gtk-connect",
 			GTK_ICON_SIZE_BUTTON);
-	gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), channels->bind_image, FALSE, TRUE, 0);
 	widget = gtk_label_new(_("Bind"));
 	gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 0);
 	gtk_widget_show_all(hbox);
 	gtk_container_add(GTK_CONTAINER(channels->bind), hbox);
 	gtk_widget_set_no_show_all(channels->bind, TRUE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(channels->bind), TRUE);
-	g_signal_connect(channels->bind, "toggled", G_CALLBACK(
-				_channels_on_bind_toggled), image);
+	g_signal_connect_swapped(channels->bind, "toggled", G_CALLBACK(
+				_channels_on_bind_toggled), channels);
 	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bind, FALSE, TRUE,
 			0);
 	if(_channels_set(channels, properties) != 0)
@@ -255,7 +270,7 @@ static int _set_channels(MixerControlPlugin * channels, guint cnt,
 				0.0, 100.0, 1.0);
 		gtk_range_set_inverted(GTK_RANGE(p->widget), TRUE);
 		gtk_range_set_value(GTK_RANGE(p->widget), value);
-		g_signal_connect_swapped(p->widget, "value-changed", G_CALLBACK(
+		g_signal_connect(p->widget, "value-changed", G_CALLBACK(
 					_channels_on_changed), p);
 		gtk_box_pack_start(GTK_BOX(channels->hbox), p->widget, TRUE,
 				TRUE, 0);
@@ -289,22 +304,52 @@ static void _set_value(MixerControlPlugin * channels, gdouble value)
 
 /* callbacks */
 /* channels_on_bind_toggled */
-static void _channels_on_bind_toggled(GtkWidget * widget, gpointer data)
+static void _channels_on_bind_toggled(gpointer data)
 {
-	GtkWidget * image = data;
+	MixerControlPlugin * channels = data;
 	gboolean active;
 
-	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-	gtk_image_set_from_icon_name(GTK_IMAGE(image),
+	active = gtk_toggle_button_get_active(
+			GTK_TOGGLE_BUTTON(channels->bind));
+	gtk_image_set_from_icon_name(GTK_IMAGE(channels->bind_image),
 			active ? "gtk-connect" : "gtk-disconnect",
 			GTK_ICON_SIZE_BUTTON);
 }
 
 
 /* channels_on_changed */
-static void _channels_on_changed(gpointer data)
+static void _channels_on_changed(GtkWidget * widget, gpointer data)
 {
-	MixerControlChannel * channel = data;
+	MixerControlPlugin * channels = data;
+	gdouble value;
 
+	value = gtk_range_get_value(GTK_RANGE(widget));
 	/* FIXME implement */
 }
+
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+/* channels_on_mute_notify_active */
+static void _channels_on_mute_notify_active(gpointer data)
+{
+	MixerControlPlugin * channels = data;
+	gboolean active;
+
+	active = gtk_switch_get_active(GTK_SWITCH(channels->mute));
+	/* FIXME implement */
+}
+#else
+/* channels_on_mute_toggled */
+static void _channels_on_mute_toggled(gpointer data)
+{
+	MixerControlPlugin * channels = data;
+	gboolean active;
+
+	active = gtk_toggle_button_get_active(
+			GTK_TOGGLE_BUTTON(channels->mute));
+	gtk_image_set_from_icon_name(GTK_IMAGE(channels->mute_image),
+			active ? "audio-volume-muted" : "audio-volume-high",
+			GTK_ICON_SIZE_BUTTON);
+	/* FIXME implement */
+}
+#endif
