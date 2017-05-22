@@ -32,6 +32,7 @@
 # define MIXER_MIXER_H
 
 # include <gtk/gtk.h> /* XXX should not be necessary */
+# include <System/string.h>
 
 
 /* Mixer */
@@ -54,7 +55,7 @@ typedef struct _Mixer Mixer;
 
 
 /* functions */
-Mixer * mixer_new(GtkWidget * window, char const * device, MixerLayout layout);
+Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout);
 void mixer_delete(Mixer * mixer);
 
 /* accessors */
