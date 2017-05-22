@@ -92,7 +92,9 @@ static MixerControlPlugin * _radio_init(String const * type, va_list properties)
 
 	if((radio = object_new(sizeof(*radio))) == NULL)
 		return NULL;
-	radio->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+	radio->widget = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
+	gtk_button_box_set_layout(GTK_BUTTON_BOX(radio->widget),
+			GTK_BUTTONBOX_SPREAD);
 	gtk_container_set_border_width(GTK_CONTAINER(radio->widget), 4);
 	radio->group = NULL;
 	radio->radios = NULL;
@@ -207,8 +209,7 @@ static int _set_members(MixerControlPlugin * radio, unsigned int cnt)
 		if(radio->group == NULL)
 			radio->group = gtk_radio_button_get_group(
 					GTK_RADIO_BUTTON(p->widget));
-		gtk_box_pack_start(GTK_BOX(radio->widget), p->widget, FALSE,
-				TRUE, 0);
+		gtk_container_add(GTK_CONTAINER(radio->widget), p->widget);
 	}
 	radio->radios_cnt = cnt;
 	gtk_widget_show_all(radio->widget);

@@ -87,7 +87,9 @@ static MixerControlPlugin * _set_init(String const * type, va_list properties)
 
 	if((set = object_new(sizeof(*set))) == NULL)
 		return NULL;
-	set->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+	set->widget = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
+	gtk_button_box_set_layout(GTK_BUTTON_BOX(set->widget),
+			GTK_BUTTONBOX_SPREAD);
 	gtk_container_set_border_width(GTK_CONTAINER(set->widget), 4);
 	set->sets = NULL;
 	set->sets_cnt = 0;
@@ -198,8 +200,7 @@ static int _set_members(MixerControlPlugin * set, unsigned int cnt)
 		p->widget = gtk_check_button_new();
 		gtk_widget_set_sensitive(p->widget, FALSE);
 		/* FIXME implement the callback */
-		gtk_box_pack_start(GTK_BOX(set->widget), p->widget, FALSE, TRUE,
-				0);
+		gtk_container_add(GTK_CONTAINER(set->widget), p->widget);
 	}
 	set->sets_cnt = cnt;
 	gtk_widget_show_all(set->widget);
