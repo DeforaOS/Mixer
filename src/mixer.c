@@ -122,11 +122,16 @@ struct _Mixer
 
 /* prototypes */
 static int _mixer_error(Mixer * mixer, char const * message, int ret);
+
 /* accessors */
 static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control);
 static int _mixer_set_control(Mixer * mixer, int index, MixerControl * control);
+
+static String const * _mixer_get_icon(String const * id);
+
 /* useful */
 static void _mixer_scrolled_window_add(GtkWidget * window, GtkWidget * widget);
+
 static void _mixer_show_view(Mixer * mixer, int view);
 
 
@@ -277,19 +282,19 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 			case AUDIO_MIXER_ENUM:
 				control = _new_enum(mixer, i, &md.un.e,
 						md.label.name,
-						"audio-value-high",
+						_mixer_get_icon(md.label.name),
 						md.label.name);
 				break;
 			case AUDIO_MIXER_SET:
 				control = _new_set(mixer, i, &md.un.s,
 						md.label.name,
-						"audio-value-high",
+						_mixer_get_icon(md.label.name),
 						md.label.name);
 				break;
 			case AUDIO_MIXER_VALUE:
 				control = _new_value(mixer, i, vgroup,
 						md.label.name,
-						"audio-volume-high",
+						_mixer_get_icon(md.label.name),
 						md.label.name);
 				break;
 		}
@@ -357,7 +362,8 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 		if(ioctl(mixer->fd, MIXER_READ(i), &value) != 0)
 			continue;
 		if((control = _new_value(mixer, i, vgroup, names[i],
-						"audio-volume-high", labels[i]))
+						_mixer_get_icon(names[i]),
+						labels[i]))
 				== NULL)
 			continue;
 		widget = mixercontrol_get_widget(control);
@@ -379,49 +385,14 @@ static GtkWidget * _new_frame_label(GdkPixbuf * pixbuf, char const * name,
 	GtkIconTheme * icontheme;
 	GtkWidget * hbox;
 	GtkWidget * widget;
-	struct
-	{
-		char const * name;
-		char const * icon;
-	} icons[] = {
-		{ "beep",	"audio-volume-high"	},
-		{ "cd",		"media-cdrom"		},
-		{ "dacsel",	"audio-card"		},
-		{ "input",	"stock_mic"		},
-		{ "line",	"stock_volume"		},
-		{ "master",	"audio-volume-high"	},
-		{ "mic",	"audio-input-microphone"},
-		{ "monitor",	"utilities-system-monitor"},
-		{ "output",	"audio-volume-high"	},
-		{ "pcm",	"audio-volume-high"	},
-		{ "rec",	"gtk-media-record"	},
-		{ "source",	"audio-card"		},
-		{ "vol",	"audio-volume-high"	}
-	};
-	size_t i;
-	size_t len;
 	const int size = 16;
 
 	icontheme = gtk_icon_theme_get_default();
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-	for(i = 0; pixbuf == NULL && i < sizeof(icons) / sizeof(*icons); i++)
-		if(strncmp(icons[i].name, name, strlen(icons[i].name)) == 0)
-			pixbuf = gtk_icon_theme_load_icon(icontheme,
-					icons[i].icon, size,
-					GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL);
 	if(pixbuf == NULL)
-	{
-		len = strlen(name);
-		/* more generic fallbacks */
-		if(strstr(name, "sel") != NULL)
-			pixbuf = gtk_icon_theme_load_icon(icontheme,
-					"multimedia", size,
-					GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL);
-		else if(len > 5 && strcmp(&name[len - 5], ".mute") == 0)
-			pixbuf = gtk_icon_theme_load_icon(icontheme,
-					"audio-volume-muted", size,
-					GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL);
-	}
+		pixbuf = gtk_icon_theme_load_icon(icontheme,
+				_mixer_get_icon(name), size,
+				GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL);
 	if(pixbuf != NULL)
 	{
 		widget = gtk_image_new_from_pixbuf(pixbuf);
@@ -1029,6 +1000,44 @@ static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control)
 	control->un.level.channels[1] = (((value & 0xff00) >> 8) * 255) / 100;
 #endif
 	return 0;
+}
+
+
+/* mixer_get_icon */
+static String const * _mixer_get_icon(String const * id)
+{
+	struct
+	{
+		String const * name;
+		String const * icon;
+	} icons[] = {
+		{ "beep",	"audio-volume-high"	},
+		{ "cd",		"media-cdrom"		},
+		{ "dacsel",	"audio-card"		},
+		{ "input",	"stock_mic"		},
+		{ "line",	"stock_volume"		},
+		{ "master",	"audio-volume-high"	},
+		{ "mic",	"audio-input-microphone"},
+		{ "monitor",	"utilities-system-monitor"},
+		{ "output",	"audio-volume-high"	},
+		{ "pcm",	"audio-volume-high"	},
+		{ "rec",	"gtk-media-record"	},
+		{ "source",	"audio-card"		},
+		{ "vol",	"audio-volume-high"	}
+	};
+	size_t len;
+	size_t i;
+
+	for(i = 0; i < sizeof(icons) / sizeof(*icons); i++)
+		if(strncmp(icons[i].name, id, string_length(icons[i].name))
+				== 0)
+			return icons[i].icon;
+	len = string_length(id);
+	if(string_find(id, "sel") != NULL)
+		return "multimedia";
+	else if(len > 5 && string_compare(&id[len - 5], ".mute") == 0)
+		return "audio-volume-muted";
+	return "audio-volume-high";
 }
 
 
