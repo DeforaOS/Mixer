@@ -353,13 +353,10 @@ static void _set_value(MixerControlPlugin * channels, gdouble value)
 static void _set_value_channel(MixerControlPlugin * channels,
 		unsigned int channel, gdouble value)
 {
-	gdouble v;
-
-	v = (value * 100.0) / 255.0;
 	if(channel < channels->channels_cnt)
 		gtk_range_set_value(
 				GTK_RANGE(channels->channels[channel].widget),
-				v);
+				(value * 100.0) / 255.0);
 }
 
 
