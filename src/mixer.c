@@ -209,7 +209,8 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 				? GTK_POLICY_AUTOMATIC : GTK_POLICY_NEVER);
 		hvbox = gtk_box_new((layout == ML_VERTICAL)
 				? GTK_ORIENTATION_VERTICAL
-				: GTK_ORIENTATION_HORIZONTAL, 0);
+				: GTK_ORIENTATION_HORIZONTAL, 4);
+		gtk_container_set_border_width(GTK_CONTAINER(hvbox), 4);
 		if(layout == ML_VERTICAL)
 			gtk_box_set_homogeneous(GTK_BOX(hvbox), TRUE);
 		_mixer_scrolled_window_add(scrolled, hvbox);
@@ -296,7 +297,6 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 			continue;
 		widget = mixercontrol_get_widget(control);
 		vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
-		gtk_container_set_border_width(GTK_CONTAINER(vbox2), 4);
 		gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
 		gtk_size_group_add_widget(hgroup, widget);
 		if(hbox == NULL)
@@ -304,7 +304,6 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 			mixer->mc[u].hbox = gtk_box_new(
 					GTK_ORIENTATION_HORIZONTAL, 4);
 			hbox = mixer->mc[u].hbox;
-			gtk_container_set_border_width(GTK_CONTAINER(hbox), 4);
 			if(mixer->notebook != NULL)
 			{
 				if((name = strdup(mixer->mc[u].label.name))
