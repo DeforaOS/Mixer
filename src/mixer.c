@@ -550,7 +550,7 @@ static MixerControl * _new_value(Mixer * mixer, int index,
 		}
 	if(bind)
 	{
-		value = (mc->un.level.channels[0] / 255.0) * 100.0;
+		value = mc->un.level.channels[0];
 		if(mixercontrol_set(control, "value", value, "bind", bind, NULL)
 				!= 0)
 		{
@@ -568,7 +568,7 @@ static MixerControl * _new_value(Mixer * mixer, int index,
 		for(i = 0; i < mc->un.level.channels_cnt; i++)
 		{
 			snprintf(buf, sizeof(buf), "value%zu", i);
-			value = (mc->un.level.channels[i] / 255.0) * 100.0;
+			value = mc->un.level.channels[i];
 			if(mixercontrol_set(control, buf, value, NULL) != 0)
 			{
 				mixercontrol_delete(control);
