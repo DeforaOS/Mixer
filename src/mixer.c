@@ -982,6 +982,9 @@ static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control)
 				sep = ",";
 # endif
 			}
+#ifdef DEBUG
+			printf(" delta=%u", md.un.v.delta);
+#endif
 			break;
 	}
 # ifdef DEBUG
