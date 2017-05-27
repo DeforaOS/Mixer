@@ -965,6 +965,10 @@ static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control)
 						md.un.s.member[i].label.name);
 				sep = ",";
 			}
+			printf("%s", "  {");
+			for(i = 0; i < md.un.s.num_mem; i++)
+				printf(" %s", md.un.s.member[i].label.name);
+			printf("%s", " }");
 # endif
 			break;
 		case AUDIO_MIXER_VALUE:
