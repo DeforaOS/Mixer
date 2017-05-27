@@ -61,6 +61,7 @@ static MixerControlPlugin * _radio_init(String const * type,
 		va_list properties);
 static void _radio_destroy(MixerControlPlugin * radio);
 
+static String const * _radio_get_type(MixerControlPlugin * radio);
 static GtkWidget * _radio_get_widget(MixerControlPlugin * radio);
 
 static int _radio_set(MixerControlPlugin * radio, va_list properties);
@@ -77,6 +78,7 @@ MixerControlDefinition control =
 	NULL,
 	_radio_init,
 	_radio_destroy,
+	_radio_get_type,
 	_radio_get_widget,
 	_radio_set
 };
@@ -118,6 +120,13 @@ static void _radio_destroy(MixerControlPlugin * radio)
 
 
 /* accessors */
+/* radio_get_type */
+static String const * _radio_get_type(MixerControlPlugin * radio)
+{
+	return "radio";
+}
+
+
 /* radio_get_widget */
 static GtkWidget * _radio_get_widget(MixerControlPlugin * radio)
 {

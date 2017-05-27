@@ -47,6 +47,7 @@ void mixercontrol_delete(MixerControl * control);
 
 /* accessors */
 String const * mixercontrol_get_id(MixerControl * control);
+String const * mixercontrol_get_type(MixerControl * control);
 GtkWidget * mixercontrol_get_widget(MixerControl * control);
 
 int mixercontrol_set(MixerControl * control, ...);

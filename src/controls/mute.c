@@ -53,6 +53,7 @@ struct _MixerControlPlugin
 static MixerControlPlugin * _mute_init(String const * type, va_list properties);
 static void _mute_destroy(MixerControlPlugin * mute);
 
+static String const * _mute_get_type(MixerControlPlugin * mute);
 static GtkWidget * _mute_get_widget(MixerControlPlugin * mute);
 
 static int _mute_set(MixerControlPlugin * mute, va_list properties);
@@ -74,6 +75,7 @@ MixerControlDefinition control =
 	NULL,
 	_mute_init,
 	_mute_destroy,
+	_mute_get_type,
 	_mute_get_widget,
 	_mute_set
 };
@@ -130,6 +132,13 @@ static void _mute_destroy(MixerControlPlugin * mute)
 
 
 /* accessors */
+/* mute_get_type */
+static String const * _mute_get_type(MixerControlPlugin * mute)
+{
+	return "mute";
+}
+
+
 /* mute_get_widget */
 static GtkWidget * _mute_get_widget(MixerControlPlugin * mute)
 {

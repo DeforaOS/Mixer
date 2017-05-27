@@ -136,6 +136,14 @@ String const * mixercontrol_get_id(MixerControl * control)
 }
 
 
+/* mixercontrol_get_type */
+String const * mixercontrol_get_type(MixerControl * control)
+{
+	return (control->definition->get_type != NULL)
+		? control->definition->get_type(control->plugin) : NULL;
+}
+
+
 /* mixercontrol_get_widget */
 GtkWidget * mixercontrol_get_widget(MixerControl * control)
 {

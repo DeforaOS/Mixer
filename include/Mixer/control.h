@@ -49,6 +49,7 @@ typedef struct _MixerControlDefinition
 	MixerControlPlugin * (*init)(String const * type, va_list properties);
 	void (*destroy)(MixerControlPlugin * plugin);
 
+	String const * (*get_type)(MixerControlPlugin * plugin);
 	GtkWidget * (*get_widget)(MixerControlPlugin * plugin);
 	int (*set)(MixerControlPlugin * plugin, va_list properties);
 } MixerControlDefinition;

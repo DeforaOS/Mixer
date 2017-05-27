@@ -58,6 +58,7 @@ struct _MixerControlPlugin
 static MixerControlPlugin * _set_init(String const * type, va_list properties);
 static void _set_destroy(MixerControlPlugin * set);
 
+static String const * _set_get_type(MixerControlPlugin * set);
 static GtkWidget * _set_get_widget(MixerControlPlugin * set);
 
 static int _set_set(MixerControlPlugin * set, va_list properties);
@@ -72,6 +73,7 @@ MixerControlDefinition control =
 	NULL,
 	_set_init,
 	_set_destroy,
+	_set_get_type,
 	_set_get_widget,
 	_set_set
 };
@@ -112,6 +114,13 @@ static void _set_destroy(MixerControlPlugin * set)
 
 
 /* accessors */
+/* set_get_type */
+static String const * _set_get_type(MixerControlPlugin * set)
+{
+	return "set";
+}
+
+
 /* set_get_widget */
 static GtkWidget * _set_get_widget(MixerControlPlugin * set)
 {

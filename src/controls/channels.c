@@ -76,6 +76,7 @@ static MixerControlPlugin * _channels_init(String const * type,
 		va_list properties);
 static void _channels_destroy(MixerControlPlugin * channels);
 
+static String const * _channels_get_type(MixerControlPlugin * channels);
 static GtkWidget * _channels_get_widget(MixerControlPlugin * channels);
 
 static int _channels_set(MixerControlPlugin * channels, va_list properties);
@@ -101,6 +102,7 @@ MixerControlDefinition control =
 	NULL,
 	_channels_init,
 	_channels_destroy,
+	_channels_get_type,
 	_channels_get_widget,
 	_channels_set
 };
@@ -197,6 +199,13 @@ static void _channels_destroy(MixerControlPlugin * channels)
 
 
 /* accessors */
+/* channels_get_type */
+static String const * _channels_get_type(MixerControlPlugin * channels)
+{
+	return "channels";
+}
+
+
 /* channels_get_widget */
 static GtkWidget * _channels_get_widget(MixerControlPlugin * channels)
 {
