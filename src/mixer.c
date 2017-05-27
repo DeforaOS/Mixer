@@ -842,7 +842,7 @@ void mixer_show_all(Mixer * mixer)
 
 
 /* mixer_show_class */
-void mixer_show_class(Mixer * mixer, char const * name)
+void mixer_show_class(Mixer * mixer, String const * name)
 {
 #ifdef AUDIO_MIXER_DEVINFO
 	size_t u;
