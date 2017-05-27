@@ -768,7 +768,7 @@ void mixer_properties(Mixer * mixer)
 			"");
 #if GTK_CHECK_VERSION(2, 10, 0)
 	gtk_message_dialog_set_image(GTK_MESSAGE_DIALOG(mixer->properties),
-			gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,
+			gtk_image_new_from_icon_name("gtk-properties",
 				GTK_ICON_SIZE_DIALOG));
 #endif
 	gtk_window_set_title(GTK_WINDOW(mixer->properties), _("Properties"));
