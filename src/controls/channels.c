@@ -206,12 +206,12 @@ static GtkWidget * _channels_get_widget(MixerControlPlugin * channels)
 
 /* channels_set */
 static void _set_bind(MixerControlPlugin * channels, gboolean bind);
-static int _set_channels(MixerControlPlugin * channels, unsigned int cnt);
+static int _set_channels(MixerControlPlugin * channels, size_t cnt);
 static void _set_delta(MixerControlPlugin * channels, unsigned int delta);
 static void _set_mute(MixerControlPlugin * channels, gboolean mute);
 static void _set_value(MixerControlPlugin * channels, gdouble value);
 static void _set_value_channel(MixerControlPlugin * channels,
-		unsigned int channel, gdouble value);
+		size_t channel, gdouble value);
 
 static int _channels_set(MixerControlPlugin * channels, va_list properties)
 {
@@ -220,6 +220,7 @@ static int _channels_set(MixerControlPlugin * channels, va_list properties)
 	GtkSizeGroup * group;
 	unsigned int u;
 	gdouble value = 0.0;
+	size_t zu;
 
 	while((p = va_arg(properties, String const *)) != NULL)
 	{
@@ -230,8 +231,8 @@ static int _channels_set(MixerControlPlugin * channels, va_list properties)
 		}
 		else if(string_compare(p, "channels") == 0)
 		{
-			u = va_arg(properties, unsigned int);
-			if(_set_channels(channels, u) != 0)
+			zu = va_arg(properties, size_t);
+			if(_set_channels(channels, zu) != 0)
 				return -1;
 		}
 		else if(string_compare(p, "delta") == 0)
@@ -261,10 +262,10 @@ static int _channels_set(MixerControlPlugin * channels, va_list properties)
 			value = va_arg(properties, gdouble);
 			_set_value(channels, value);
 		}
-		else if(sscanf(p, "value%u", &u) == 1)
+		else if(sscanf(p, "value%zu", &zu) == 1)
 		{
 			value = va_arg(properties, gdouble);
-			_set_value_channel(channels, u, value);
+			_set_value_channel(channels, zu, value);
 		}
 		else if(string_compare(p, "vgroup") == 0)
 		{
@@ -283,7 +284,7 @@ static void _set_bind(MixerControlPlugin * channels, gboolean bind)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(channels->bind), bind);
 }
 
-static int _set_channels(MixerControlPlugin * channels, unsigned int cnt)
+static int _set_channels(MixerControlPlugin * channels, size_t cnt)
 {
 	size_t i;
 	MixerControlChannel * p;
@@ -351,7 +352,7 @@ static void _set_value(MixerControlPlugin * channels, gdouble value)
 }
 
 static void _set_value_channel(MixerControlPlugin * channels,
-		unsigned int channel, gdouble value)
+		size_t channel, gdouble value)
 {
 	if(channel < channels->channels_cnt)
 		gtk_range_set_value(
