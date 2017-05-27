@@ -379,11 +379,18 @@ static void _channels_on_bind_toggled(gpointer data)
 /* channels_on_changed */
 static void _channels_on_changed(GtkWidget * widget, gpointer data)
 {
-	MixerControlPlugin * channels = data;
+	MixerControlChannel * channel = data;
+	MixerControlPlugin * channels = channel->plugin;
 	gdouble value;
+	size_t i;
 
 	value = gtk_range_get_value(GTK_RANGE(widget));
-	/* FIXME implement */
+	if(channels->bind)
+		for(i = 0; i < channels->channels_cnt; i++)
+			gtk_range_set_value(
+					GTK_RANGE(channels->channels[i].widget),
+					value);
+	/* FIXME really implement */
 }
 
 
