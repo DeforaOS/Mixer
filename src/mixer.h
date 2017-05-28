@@ -33,6 +33,8 @@
 
 # include <gtk/gtk.h>
 # include <System/string.h>
+# include "control.h"
+# include "common.h"
 
 
 /* Mixer */
@@ -51,8 +53,6 @@ typedef struct _MixerProperties
 	char device[16];
 } MixerProperties;
 
-typedef struct _Mixer Mixer;
-
 
 /* functions */
 Mixer * mixer_new(GtkWidget * window, String const * device,
@@ -63,10 +63,7 @@ void mixer_delete(Mixer * mixer);
 int mixer_get_properties(Mixer * mixer, MixerProperties * properties);
 GtkWidget * mixer_get_widget(Mixer * mixer);
 
-int mixer_set_enum(Mixer * mixer, GtkWidget * widget);
-int mixer_set_mute(Mixer * mixer, GtkWidget * widget);
-int mixer_set_set(Mixer * mixer, GtkWidget * widget);
-int mixer_set_value(Mixer * mixer, GtkWidget * widget, gdouble value);
+int mixer_set(Mixer * mixer, MixerControl * control);
 
 /* useful */
 void mixer_properties(Mixer * mixer);

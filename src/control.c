@@ -28,9 +28,13 @@
 
 
 
+#ifdef DEBUG
+# include <stdio.h>
+#endif
 #include <System/object.h>
 #include <System/plugin.h>
 #include "Mixer/control.h"
+#include "mixer.h"
 #include "control.h"
 #include "../config.h"
 
@@ -39,6 +43,10 @@
 /* types */
 struct _MixerControl
 {
+	Mixer * mixer;
+
+	MixerControlPluginHelper helper;
+
 	String * id;
 	Plugin * handle;
 	MixerControlDefinition * definition;
@@ -52,11 +60,17 @@ struct _MixerControl
 };
 
 
+/* prototypes */
+/* helper */
+static int _mixercontrol_helper_set(MixerControl * control);
+
+
 /* public */
 /* functions */
 /* mixercontrol_new */
-MixerControl * mixercontrol_new(String const * id, String const * icon,
-		String const * name, String const * type, ...)
+MixerControl * mixercontrol_new(Mixer * mixer, String const * id,
+		String const * icon, String const * name,
+		String const * type, ...)
 {
 	MixerControl * control;
 	va_list ap;
@@ -68,6 +82,9 @@ MixerControl * mixercontrol_new(String const * id, String const * icon,
 #endif
 	if((control = object_new(sizeof(*control))) == NULL)
 		return NULL;
+	control->mixer = mixer;
+	control->helper.control = control;
+	control->helper.mixercontrol_set = _mixercontrol_helper_set;
 	control->id = string_new(id);
 	control->handle = plugin_new(LIBDIR, PACKAGE, "controls", type);
 	control->definition = NULL;
@@ -80,8 +97,8 @@ MixerControl * mixercontrol_new(String const * id, String const * icon,
 					"control")) == NULL
 			|| control->definition->init == NULL
 			|| control->definition->destroy == NULL
-			|| (control->plugin = control->definition->init(type,
-					ap)) == NULL
+			|| (control->plugin = control->definition->init(
+					&control->helper, type, ap)) == NULL
 			|| control->definition->get_widget == NULL
 			|| (control->widget = control->definition->get_widget(
 					control->plugin)) == NULL)
@@ -129,6 +146,24 @@ void mixercontrol_delete(MixerControl * control)
 
 
 /* accessors */
+/* mixercontrol_get */
+int mixercontrol_get(MixerControl * control, ...)
+{
+	int ret;
+	va_list ap;
+
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s()\n", __func__);
+#endif
+	if(control->definition->get == NULL)
+		return -1;
+	va_start(ap, control);
+	ret = control->definition->get(control->plugin, ap);
+	va_end(ap);
+	return ret;
+}
+
+
 /* mixercontrol_get_id */
 String const * mixercontrol_get_id(MixerControl * control)
 {
@@ -157,6 +192,8 @@ int mixercontrol_set(MixerControl * control, ...)
 	int ret;
 	va_list ap;
 
+	if(control->definition->set == NULL)
+		return -1;
 	va_start(ap, control);
 	ret = control->definition->set(control->plugin, ap);
 	va_end(ap);
@@ -169,4 +206,15 @@ void mixercontrol_set_icon(MixerControl * control, String const * icon)
 {
 	gtk_image_set_from_icon_name(GTK_IMAGE(control->icon), icon,
 			GTK_ICON_SIZE_MENU);
+}
+
+
+/* private */
+/* mixercontrol_helper_set */
+static int _mixercontrol_helper_set(MixerControl * control)
+{
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(%p)\n", __func__, (void *)control);
+#endif
+	return mixer_set(control->mixer, control);
 }

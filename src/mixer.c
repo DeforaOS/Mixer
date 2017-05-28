@@ -49,6 +49,7 @@
 #include <gtk/gtk.h>
 #include <Desktop.h>
 #include "control.h"
+#include "common.h"
 #include "mixer.h"
 #include "../config.h"
 #define _(string) gettext(string)
@@ -80,7 +81,10 @@ typedef struct _MixerLevel
 	size_t channels_cnt;
 } MixerLevel;
 
-typedef struct _MixerControl
+/* FIXME there are two different MixerControl types */
+typedef struct _MixerControl MixerControl;
+
+struct _MixerControl
 {
 	int index;
 	int type;
@@ -89,7 +93,9 @@ typedef struct _MixerControl
 		int mask;
 		MixerLevel level;
 	} un;
-} MixerControl;
+
+	MixerControl * control;
+};
 
 struct _Mixer
 {
@@ -105,27 +111,23 @@ struct _Mixer
 #ifdef AUDIO_MIXER_DEVINFO
 	int fd;
 
-	MixerClass * mc;
-	size_t mc_cnt;
+	MixerClass * classes;
+	size_t classes_cnt;
 #else
 	int fd;
 #endif
 
-	MixerControl ** controls;
+	MixerControl * controls;
 	size_t controls_cnt;
 };
-
-
-/* constants */
-#define MIXER_DEFAULT_DEVICE "/dev/mixer"
 
 
 /* prototypes */
 static int _mixer_error(Mixer * mixer, char const * message, int ret);
 
 /* accessors */
-static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control);
-static int _mixer_set_control(Mixer * mixer, int index, MixerControl * control);
+static int _mixer_get_control(Mixer * mixer, MixerControl * control);
+static int _mixer_set_control(Mixer * mixer, MixerControl * control);
 
 static String const * _mixer_get_icon(String const * id);
 
@@ -140,10 +142,10 @@ static void _mixer_show_view(Mixer * mixer, int view);
 static GtkWidget * _new_frame_label(GdkPixbuf * pixbuf, char const * name,
 		char const * label);
 #ifdef AUDIO_MIXER_DEVINFO
-static MixerControl * _new_enum(Mixer * mixer, int dev,
+static MixerControl * _new_enum(Mixer * mixer, int index,
 		struct audio_mixer_enum * e, String const * id,
 		String const * icon, String const * name);
-static MixerControl * _new_set(Mixer * mixer, int dev,
+static MixerControl * _new_set(Mixer * mixer, int index,
 		struct audio_mixer_set * s, String const * id,
 		String const * icon, String const * name);
 #endif
@@ -162,6 +164,7 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 	GtkWidget * hvbox = NULL;
 	GtkWidget * hbox;
 	MixerControl * control;
+	MixerControl * q;
 	int i;
 #ifdef AUDIO_MIXER_DEVINFO
 	mixer_devinfo_t md;
@@ -186,8 +189,8 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 	mixer->properties = NULL;
 	mixer->bold = NULL;
 #ifdef AUDIO_MIXER_DEVINFO
-	mixer->mc = NULL;
-	mixer->mc_cnt = 0;
+	mixer->classes = NULL;
+	mixer->classes_cnt = 0;
 #endif
 	mixer->controls = NULL;
 	mixer->controls_cnt = 0;
@@ -228,15 +231,16 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 			break;
 		if(md.type != AUDIO_MIXER_CLASS)
 			continue;
-		if((p = realloc(mixer->mc, sizeof(*mixer->mc)
-						* (mixer->mc_cnt + 1))) == NULL)
+		if((p = realloc(mixer->classes, sizeof(*p)
+						* (mixer->classes_cnt + 1)))
+				== NULL)
 		{
 			_mixer_error(NULL, "realloc", 1);
 			mixer_delete(mixer);
 			return NULL;
 		}
-		mixer->mc = p;
-		p = &mixer->mc[mixer->mc_cnt++];
+		mixer->classes = p;
+		p = &mixer->classes[mixer->classes_cnt++];
 		p->mixer_class = md.mixer_class;
 		memcpy(&p->label, &md.label, sizeof(md.label));
 		p->hbox = NULL;
@@ -270,12 +274,12 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 			break;
 		if(md.type == AUDIO_MIXER_CLASS)
 			continue;
-		for(u = 0; u < mixer->mc_cnt; u++)
-			if(mixer->mc[u].mixer_class == md.mixer_class)
+		for(u = 0; u < mixer->classes_cnt; u++)
+			if(mixer->classes[u].mixer_class == md.mixer_class)
 				break;
-		if(u == mixer->mc_cnt)
+		if(u == mixer->classes_cnt)
 			continue;
-		hbox = mixer->mc[u].hbox;
+		hbox = mixer->classes[u].hbox;
 		control = NULL;
 		switch(md.type)
 		{
@@ -300,23 +304,37 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 		}
 		if(control == NULL)
 			continue;
+		if((q = realloc(mixer->controls, sizeof(*q)
+						* (mixer->controls_cnt + 1)))
+				== NULL)
+		{
+			mixercontrol_delete(control);
+			/* FIXME report error */
+			continue;
+		}
+		mixer->controls = q;
+		q = &mixer->controls[mixer->controls_cnt++];
+		q->index = md.index;
+		q->type = md.type;
+		q->control = control;
 		widget = mixercontrol_get_widget(control);
 		vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 		gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
 		gtk_size_group_add_widget(hgroup, widget);
 		if(hbox == NULL)
 		{
-			mixer->mc[u].hbox = gtk_box_new(
-					GTK_ORIENTATION_HORIZONTAL, 4);
-			hbox = mixer->mc[u].hbox;
+			p = &mixer->classes[u];
+			p->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+			hbox = p->hbox;
 			if(mixer->notebook != NULL)
 			{
-				if((name = strdup(mixer->mc[u].label.name))
+				if((name = strdup(mixer->classes[u].label.name))
 						!= NULL)
 					name[0] = toupper(
 							(unsigned char)name[0]);
 				label = _new_frame_label(NULL,
-						mixer->mc[u].label.name, name);
+						mixer->classes[u].label.name,
+						name);
 				free(name);
 				gtk_widget_show_all(label);
 				scrolled = gtk_scrolled_window_new(NULL, NULL);
@@ -324,14 +342,14 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 						GTK_SCROLLED_WINDOW(scrolled),
 						GTK_POLICY_AUTOMATIC,
 						GTK_POLICY_NEVER);
-				_mixer_scrolled_window_add(scrolled, hbox);
-				mixer->mc[u].page = gtk_notebook_append_page(
+				_mixer_scrolled_window_add(scrolled, p->hbox);
+				p->page = gtk_notebook_append_page(
 						GTK_NOTEBOOK(mixer->notebook),
 						scrolled, label);
 			}
 			else if(hvbox != NULL)
-				gtk_box_pack_start(GTK_BOX(hvbox), hbox, FALSE,
-						TRUE, 0);
+				gtk_box_pack_start(GTK_BOX(hvbox), p->hbox,
+						FALSE, TRUE, 0);
 		}
 		gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
 		/* add a mute button if relevant */
@@ -342,10 +360,10 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 			break;
 		if(md2.type == AUDIO_MIXER_CLASS)
 			continue;
-		for(u = 0; u < mixer->mc_cnt; u++)
-			if(mixer->mc[u].mixer_class == md2.mixer_class)
+		for(u = 0; u < mixer->classes_cnt; u++)
+			if(mixer->classes[u].mixer_class == md2.mixer_class)
 				break;
-		if(u == mixer->mc_cnt)
+		if(u == mixer->classes_cnt)
 			continue;
 		u = strlen(md.label.name);
 		if(md2.type != AUDIO_MIXER_ENUM || strncmp(md.label.name,
@@ -361,11 +379,22 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 			break;
 		if(ioctl(mixer->fd, MIXER_READ(i), &value) != 0)
 			continue;
+		if((q = realloc(mixer->controls, sizeof(*q)
+						* (mixer->controls_cnt + 1)))
+				== NULL)
+			/* FIXME report error */
+			continue;
+		mixer->controls = q;
+		q = &mixer->controls[mixer->controls_cnt];
 		if((control = _new_value(mixer, i, vgroup, names[i],
 						_mixer_get_icon(names[i]),
 						labels[i]))
 				== NULL)
 			continue;
+		q->index = i;
+		q->type = 0;
+		q->control = control;
+		mixer->controls_cnt++;
 		widget = mixercontrol_get_widget(control);
 		gtk_size_group_add_widget(hgroup, widget);
 		gtk_box_pack_start(GTK_BOX(hbox), widget, FALSE, TRUE, 0);
@@ -411,25 +440,24 @@ static GtkWidget * _new_frame_label(GdkPixbuf * pixbuf, char const * name,
 }
 
 #ifdef AUDIO_MIXER_DEVINFO
-static MixerControl * _new_enum(Mixer * mixer, int dev,
+static MixerControl * _new_enum(Mixer * mixer, int index,
 		struct audio_mixer_enum * e, String const * id,
 		String const * icon, String const * name)
 {
-	MixerControl * mc;
+	MixerControl mc;
 	MixerControl * control;
 	int i;
 	char label[16];
 	char value[16];
 
-	if(e->num_mem <= 0 || (mc = malloc(sizeof(*mc))) == NULL)
+	if(e->num_mem <= 0)
 		return NULL;
-	if(_mixer_get_control(mixer, dev, mc) != 0
-			|| (control = mixercontrol_new(id, icon, name, "radio",
-					"members", e->num_mem, NULL)) == NULL)
-	{
-		free(mc);
+	mc.index = index;
+	if(_mixer_get_control(mixer, &mc) != 0
+			|| (control = mixercontrol_new(mixer, id, icon, name,
+					"radio", "members", e->num_mem, NULL))
+			== NULL)
 		return NULL;
-	}
 	for(i = 0; i < e->num_mem; i++)
 	{
 		snprintf(label, sizeof(label), "label%d", i);
@@ -441,7 +469,7 @@ static MixerControl * _new_enum(Mixer * mixer, int dev,
 			return NULL;
 		}
 	}
-	if(mixercontrol_set(control, "value", mc->un.mask, NULL) != 0)
+	if(mixercontrol_set(control, "value", mc.un.mask, NULL) != 0)
 	{
 		mixercontrol_delete(control);
 		return NULL;
@@ -449,25 +477,24 @@ static MixerControl * _new_enum(Mixer * mixer, int dev,
 	return control;
 }
 
-static MixerControl * _new_set(Mixer * mixer, int dev,
+static MixerControl * _new_set(Mixer * mixer, int index,
 		struct audio_mixer_set * s, String const * id,
 		String const * icon, String const * name)
 {
-	MixerControl * mc;
+	MixerControl mc;
 	MixerControl * control;
 	int i;
 	char label[16];
 	char value[16];
 
-	if(s->num_mem <= 0 || (mc = malloc(sizeof(*mc))) == NULL)
+	if(s->num_mem <= 0)
 		return NULL;
-	if(_mixer_get_control(mixer, dev, mc) != 0
-			|| (control = mixercontrol_new(id, icon, name, "set",
-					"members", s->num_mem, NULL)) == NULL)
-	{
-		free(mc);
+	mc.index = index;
+	if(_mixer_get_control(mixer, &mc) != 0
+			|| (control = mixercontrol_new(mixer, id, icon, name,
+					"set", "members", s->num_mem, NULL))
+			== NULL)
 		return NULL;
-	}
 	for(i = 0; i < s->num_mem; i++)
 	{
 		snprintf(label, sizeof(label), "label%d", i);
@@ -479,7 +506,7 @@ static MixerControl * _new_set(Mixer * mixer, int dev,
 			return NULL;
 		}
 	}
-	if(mixercontrol_set(control, "value", mc->un.mask, NULL) != 0)
+	if(mixercontrol_set(control, "value", mc.un.mask, NULL) != 0)
 	{
 		mixercontrol_delete(control);
 		return NULL;
@@ -492,36 +519,32 @@ static MixerControl * _new_value(Mixer * mixer, int index,
 		GtkSizeGroup * vgroup, String const * id, String const * icon,
 		String const * name)
 {
-	MixerControl * mc;
+	MixerControl mc;
 	MixerControl * control;
 	size_t i;
 	gboolean bind = TRUE;
 	char buf[16];
 	gdouble value;
 
-	if((mc = malloc(sizeof(*mc))) == NULL
-			|| _mixer_get_control(mixer, index, mc) != 0
-			|| mc->un.level.channels_cnt <= 0
-			|| (control = mixercontrol_new(id, icon, name,
+	mc.index = index;
+	if(_mixer_get_control(mixer, &mc) != 0
+			|| mc.un.level.channels_cnt <= 0
+			|| (control = mixercontrol_new(mixer, id, icon, name,
 					"channels",
-					"channels", mc->un.level.channels_cnt,
-					"delta", mc->un.level.delta,
+					"channels", mc.un.level.channels_cnt,
+					"delta", mc.un.level.delta,
 					"vgroup", vgroup, NULL)) == NULL)
-	{
-		free(mc);
 		return NULL;
-	}
-	free(mc);
 	/* detect if binding is in place */
-	for(i = 1; i < mc->un.level.channels_cnt; i++)
-		if(mc->un.level.channels[i] != mc->un.level.channels[0])
+	for(i = 1; i < mc.un.level.channels_cnt; i++)
+		if(mc.un.level.channels[i] != mc.un.level.channels[0])
 		{
 			bind = FALSE;
 			break;
 		}
 	if(bind)
 	{
-		value = mc->un.level.channels[0];
+		value = mc.un.level.channels[0];
 		if(mixercontrol_set(control, "value", value, "bind", bind, NULL)
 				!= 0)
 		{
@@ -536,10 +559,10 @@ static MixerControl * _new_value(Mixer * mixer, int index,
 			mixercontrol_delete(control);
 			return NULL;
 		}
-		for(i = 0; i < mc->un.level.channels_cnt; i++)
+		for(i = 0; i < mc.un.level.channels_cnt; i++)
 		{
 			snprintf(buf, sizeof(buf), "value%zu", i);
-			value = mc->un.level.channels[i];
+			value = mc.un.level.channels[i];
 			if(mixercontrol_set(control, buf, value, NULL) != 0)
 			{
 				mixercontrol_delete(control);
@@ -608,132 +631,162 @@ GtkWidget * mixer_get_widget(Mixer * mixer)
 }
 
 
-/* mixer_set_enum */
-int mixer_set_enum(Mixer * mixer, GtkWidget * widget)
-{
-#ifdef AUDIO_MIXER_DEVINFO
-	mixer_ctrl_t * p;
-	int * q;
-
-# ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s(%p) fd=%d\n", __func__, (void *)mixer,
-			mixer->fd);
-# endif
-	p = g_object_get_data(G_OBJECT(widget), "ctrl");
-	q = g_object_get_data(G_OBJECT(widget), "ord");
-	if(p == NULL || q == NULL)
-		return 1;
-	p->un.ord = *q;
-# ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s(%p) fd=%d ord=%d\n", __func__, (void *)mixer,
-			mixer->fd, p->un.ord);
-# endif
-	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, p) != 0)
-		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
-#else
-	/* FIXME implement */
+/* mixer_set */
+static int _set_channels(Mixer * mixer, MixerControl * control);
+#if defined(AUDIO_MIXER_DEVINFO)
+static int _set_mute(Mixer * mixer, MixerControl * control);
+static int _set_radio(Mixer * mixer, MixerControl * control);
+static int _set_set(Mixer * mixer, MixerControl * control);
 #endif
-	return 0;
-}
 
-
-/* mixer_set_mute */
-int mixer_set_mute(Mixer * mixer, GtkWidget * widget)
+int mixer_set(Mixer * mixer, MixerControl * control)
 {
-#ifdef AUDIO_MIXER_DEVINFO
-	mixer_ctrl_t * p;
-
-# ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s(%p) fd=%d\n", __func__, (void *)mixer,
-			mixer->fd);
-# endif
-	if((p = g_object_get_data(G_OBJECT(widget), "ctrl")) == NULL)
-		return -1;
-#if GTK_CHECK_VERSION(3, 0, 0)
-	p->un.ord = gtk_switch_get_active(GTK_SWITCH(widget))
-		? 0 : 1; /* XXX assumes 1 is "off" */
-#else
-	p->un.ord = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))
-		? 1 : 0; /* XXX assumes 0 is "off" */
-#endif
-# ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s(%p) fd=%d ord=%d\n", __func__, (void *)mixer,
-			mixer->fd, p->un.ord);
-# endif
-	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, p) != 0)
-		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
-#else
-	/* FIXME implement */
-#endif
-	return 0;
-}
-
-
-/* mixer_set_set */
-int mixer_set_set(Mixer * mixer, GtkWidget * widget)
-{
-	gboolean active;
-#ifdef AUDIO_MIXER_DEVINFO
-	mixer_ctrl_t * p;
-	int * q;
-
-# ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s(%p) fd=%d\n", __func__, (void *)mixer,
-			mixer->fd);
-# endif
-	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-	p = g_object_get_data(G_OBJECT(widget), "ctrl");
-	q = g_object_get_data(G_OBJECT(widget), "mask");
-	if(p == NULL || q == NULL)
-		return 1;
-	if(ioctl(mixer->fd, AUDIO_MIXER_READ, p) != 0)
-		return -_mixer_error(mixer, "AUDIO_MIXER_READ", 1);
-	p->un.mask = (active) ? (p->un.mask | *q)
-		: (p->un.mask - (p->un.mask & *q));
-# ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s(%p) fd=%d mask=%d\n", __func__,
-			(void *)mixer, mixer->fd, p->un.mask);
-# endif
-	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, p) != 0)
-		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
-#else
-	active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-	/* FIXME implement */
-#endif
-	return 0;
-}
-
-
-/* mixer_set_value */
-int mixer_set_value(Mixer * mixer, GtkWidget * widget, gdouble value)
-{
-	GtkWidget * b;
-	MixerControl * mc;
-	uint8_t * channel;
-	size_t i;
-	GSList * q;
+	String const * type;
 
 #ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s(%p, %f) fd=%d\n", __func__, (void *)mixer,
-			value, mixer->fd);
+	fprintf(stderr, "DEBUG: %s()\n", __func__);
 #endif
-	b = g_object_get_data(G_OBJECT(widget), "bind");
-	mc = g_object_get_data(G_OBJECT(widget), "ctrl");
-	channel = g_object_get_data(G_OBJECT(widget), "channel");
-	if(mc == NULL || channel == NULL)
-		return 1;
-	*channel = (value / 100.0) * 255;
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(b)))
-	{
-		for(i = 0; i < mc->un.level.channels_cnt; i++)
-			mc->un.level.channels[i] = *channel;
-		if(b != NULL)
-			for(q = g_object_get_data(G_OBJECT(b), "list");
-					q != NULL; q = q->next)
-				gtk_range_set_value(GTK_RANGE(q->data), value);
-	}
-	return _mixer_set_control(mixer, mc->index, mc);
+	if((type = mixercontrol_get_type(control)) == NULL)
+		return -1;
+	else if(string_compare(type, "channels") == 0)
+		return _set_channels(mixer, control);
+#if defined(AUDIO_MIXER_DEVINFO)
+	else if(string_compare(type, "mute") == 0)
+		return _set_mute(mixer, control);
+	else if(string_compare(type, "radio") == 0)
+		return _set_radio(mixer, control);
+	else if(string_compare(type, "set") == 0)
+		return _set_set(mixer, control);
+#endif
+	return -1;
 }
+
+static int _set_channels(Mixer * mixer, MixerControl * control)
+{
+	size_t i;
+	double value;
+	uint8_t channel;
+	MixerControl mc;
+	char buf[16];
+
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(%p, %p) fd=%d\n", __func__, (void *)mixer,
+			(void *)control, mixer->fd);
+#endif
+	for(i = 0; i < mixer->controls_cnt; i++)
+		if(mixer->controls[i].control == control)
+			break;
+	if(i == mixer->controls_cnt)
+		return -1;
+	mc.index = mixer->controls[i].index;
+	if(_mixer_get_control(mixer, &mc) != 0)
+		return -1;
+	for(i = 0; i < mc.un.level.channels_cnt; i++)
+	{
+		snprintf(buf, sizeof(buf), "value%zu", i);
+		if(mixercontrol_get(control, buf, &value, NULL) != 0)
+			return -1;
+		channel = (value * 255.0) / 100.0;
+#ifdef DEBUG
+		fprintf(stderr, "DEBUG: %s() value%zu=%f\n", __func__, i,
+				value);
+#endif
+		mc.un.level.channels[i] = channel;
+	}
+	return _mixer_set_control(mixer, &mc);
+}
+
+#if defined(AUDIO_MIXER_DEVINFO)
+static int _set_mute(Mixer * mixer, MixerControl * control)
+{
+	size_t i;
+	gboolean value;
+	MixerControl * mc;
+	mixer_ctrl_t p;
+
+# ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(%p, %p) fd=%d\n", __func__, (void *)mixer,
+			(void *)control, mixer->fd);
+# endif
+	for(i = 0; i < mixer->controls_cnt; i++)
+		if(mixer->controls[i].control == control)
+			break;
+	if(i == mixer->controls_cnt)
+		return -1;
+	mc = &mixer->controls[i];
+	p.dev = mc->index;
+	p.type = mc->type;
+	if(mixercontrol_get(control, "value", &value, NULL) != 0)
+		return -1;
+	p.un.ord = value;
+# ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s() ord=%d\n", __func__, p.un.ord);
+# endif
+	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, &p) != 0)
+		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
+	return 0;
+}
+
+static int _set_radio(Mixer * mixer, MixerControl * control)
+{
+	size_t i;
+	MixerControl * mc;
+	mixer_ctrl_t p;
+	unsigned int value;
+
+# ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(%p) fd=%d\n", __func__, (void *)mixer,
+			mixer->fd);
+# endif
+	for(i = 0; i < mixer->controls_cnt; i++)
+		if(mixer->controls[i].control == control)
+			break;
+	if(i == mixer->controls_cnt)
+		return -1;
+	mc = &mixer->controls[i];
+	p.dev = mc->index;
+	p.type = mc->type;
+	if(mixercontrol_get(control, "value", &value, NULL) != 0)
+		return -1;
+	p.un.ord = value;
+# ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s() ord=%d\n", __func__, p.un.ord);
+# endif
+	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, p) != 0)
+		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
+	return 0;
+}
+
+static int _set_set(Mixer * mixer, MixerControl * control)
+{
+	size_t i;
+	unsigned int value;
+	MixerControl * mc;
+	mixer_ctrl_t p;
+
+# ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s(%p) fd=%d\n", __func__, (void *)mixer,
+			mixer->fd);
+# endif
+	for(i = 0; i < mixer->controls_cnt; i++)
+		if(mixer->controls[i].control == control)
+			break;
+	if(i == mixer->controls_cnt)
+		return -1;
+	mc = &mixer->controls[i];
+	p.dev = mc->index;
+	p.type = mc->type;
+	if(mixercontrol_get(control, "value", &value, NULL) != 0)
+		return -1;
+	p.un.mask = value;
+# ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s() mask=%d\n", __func__, p.un.mask);
+# endif
+	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, p) != 0)
+		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
+	return 0;
+}
+#endif
 
 
 /* useful */
@@ -849,26 +902,27 @@ void mixer_show_class(Mixer * mixer, String const * name)
 
 	if(mixer->notebook != NULL && name != NULL)
 	{
-		for(u = 0; u < mixer->mc_cnt; u++)
+		for(u = 0; u < mixer->classes_cnt; u++)
 		{
-			if(mixer->mc[u].hbox == NULL)
+			if(mixer->classes[u].hbox == NULL)
 				continue;
-			if(strcmp(mixer->mc[u].label.name, name) != 0)
+			if(strcmp(mixer->classes[u].label.name, name) != 0)
 				continue;
 			gtk_notebook_set_current_page(GTK_NOTEBOOK(
 						mixer->notebook),
-					mixer->mc[u].page);
+					mixer->classes[u].page);
 		}
 		return;
 	}
-	for(u = 0; u < mixer->mc_cnt; u++)
-		if(mixer->mc[u].hbox == NULL)
+	for(u = 0; u < mixer->classes_cnt; u++)
+		if(mixer->classes[u].hbox == NULL)
 			continue;
 		else if(name == NULL
-				|| strcmp(mixer->mc[u].label.name, name) == 0)
-			gtk_widget_show(mixer->mc[u].hbox);
+				|| strcmp(mixer->classes[u].label.name, name)
+				== 0)
+			gtk_widget_show(mixer->classes[u].hbox);
 		else
-			gtk_widget_hide(mixer->mc[u].hbox);
+			gtk_widget_hide(mixer->classes[u].hbox);
 #endif
 }
 
@@ -911,7 +965,7 @@ static int _error_text(char const * message, int ret)
 
 /* accessors */
 /* mixer_get_control */
-static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control)
+static int _mixer_get_control(Mixer * mixer, MixerControl * control)
 {
 #ifdef AUDIO_MIXER_DEVINFO
 	mixer_ctrl_t p;
@@ -922,21 +976,20 @@ static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control)
 	char * sep = "";
 # endif
 
-	md.index = index;
+	md.index = control->index;
 	if(ioctl(mixer->fd, AUDIO_MIXER_DEVINFO, &md) != 0)
 		return -_mixer_error(mixer, "AUDIO_MIXER_DEVINFO", 1);
-	p.dev = index;
+	p.dev = control->index;
 	/* XXX this is necessary for some drivers and I don't like it */
 	if((p.type = md.type) == AUDIO_MIXER_VALUE)
 		p.un.value.num_channels = md.un.v.num_channels;
 	if(ioctl(mixer->fd, AUDIO_MIXER_READ, &p) != 0)
 		return -_mixer_error(mixer, "AUDIO_MIXER_READ", 1);
-	control->index = index;
 	control->type = p.type;
 # ifdef DEBUG
-	for(u = 0; u < mixer->mc_cnt; u++)
-		if(mixer->mc[u].mixer_class == md.mixer_class)
-			printf("%s", mixer->mc[u].label.name);
+	for(u = 0; u < mixer->classes_cnt; u++)
+		if(mixer->classes[u].mixer_class == md.mixer_class)
+			printf("%s", mixer->classes[u].label.name);
 	printf(".%s=", md.label.name);
 # endif
 	switch(p.type)
@@ -997,8 +1050,7 @@ static int _mixer_get_control(Mixer * mixer, int index, MixerControl * control)
 #else
 	int value;
 
-	control->index = index;
-	if(ioctl(mixer->fd, MIXER_READ(index), &value) != 0)
+	if(ioctl(mixer->fd, MIXER_READ(control->index), &value) != 0)
 		return -_mixer_error(NULL, "MIXER_READ", 1);
 	control->type = 0;
 	control->un.level.delta = 1;
@@ -1049,13 +1101,13 @@ static String const * _mixer_get_icon(String const * id)
 
 
 /* mixer_set_control */
-static int _mixer_set_control(Mixer * mixer, int index, MixerControl * control)
+static int _mixer_set_control(Mixer * mixer, MixerControl * control)
 {
 #ifdef AUDIO_MIXER_DEVINFO
 	mixer_ctrl_t p;
 	int i;
 
-	p.dev = index;
+	p.dev = control->index;
 	p.type = control->type;
 	p.un.value.num_channels = control->un.level.channels_cnt;
 	for(i = 0; i < p.un.value.num_channels; i++)
@@ -1067,7 +1119,10 @@ static int _mixer_set_control(Mixer * mixer, int index, MixerControl * control)
 
 	level |= (control->un.level.channels[0] * 100) / 255;
 	level |= ((control->un.level.channels[1] * 100) / 255) << 8;
-	if(ioctl(mixer->fd, MIXER_WRITE(index), &level) != 0)
+# ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s() level=0x%04x\n", __func__, level);
+# endif
+	if(ioctl(mixer->fd, MIXER_WRITE(control->index), &level) != 0)
 		return -_mixer_error(mixer, "MIXER_WRITE", 1);
 #endif
 	return 0;
@@ -1095,20 +1150,20 @@ static void _mixer_show_view(Mixer * mixer, int view)
 
 	if(view < 0)
 	{
-		for(u = 0; u < mixer->mc_cnt; u++)
-			if(mixer->mc[u].hbox != NULL)
-				gtk_widget_show(mixer->mc[u].hbox);
+		for(u = 0; u < mixer->classes_cnt; u++)
+			if(mixer->classes[u].hbox != NULL)
+				gtk_widget_show(mixer->classes[u].hbox);
 		return;
 	}
 	u = view;
-	if(u >= mixer->mc_cnt)
+	if(u >= mixer->classes_cnt)
 		return;
-	for(u = 0; u < mixer->mc_cnt; u++)
-		if(mixer->mc[u].hbox == NULL)
+	for(u = 0; u < mixer->classes_cnt; u++)
+		if(mixer->classes[u].hbox == NULL)
 			continue;
 		else if(u == (size_t)view)
-			gtk_widget_show(mixer->mc[u].hbox);
+			gtk_widget_show(mixer->classes[u].hbox);
 		else
-			gtk_widget_hide(mixer->mc[u].hbox);
+			gtk_widget_hide(mixer->classes[u].hbox);
 #endif
 }

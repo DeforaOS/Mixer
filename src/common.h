@@ -28,41 +28,15 @@
 
 
 
-#ifndef DESKTOP_MIXER_CONTROL_H
-# define DESKTOP_MIXER_CONTROL_H
-
-# include <stdarg.h>
-# include <gtk/gtk.h>
-# include <System/string.h>
+#ifndef MIXER_COMMON_H
+# define MIXER_COMMON_H
 
 
-/* MixerControlPlugin */
-typedef struct _MixerControl MixerControl;
+/* types */
+typedef struct _Mixer Mixer;
 
-typedef struct _MixerControlPlugin MixerControlPlugin;
 
-typedef struct _MixerControlPluginHelper
-{
-	MixerControl * control;
+/* constants */
+#define MIXER_DEFAULT_DEVICE "/dev/mixer"
 
-	int (*mixercontrol_set)(MixerControl * control);
-} MixerControlPluginHelper;
-
-typedef struct _MixerControlDefinition
-{
-	String const * icon;
-	String const * name;
-	String const * description;
-
-	/* callbacks */
-	MixerControlPlugin * (*init)(MixerControlPluginHelper * helper,
-			String const * type, va_list properties);
-	void (*destroy)(MixerControlPlugin * plugin);
-
-	int (*get)(MixerControlPlugin * plugin, va_list properties);
-	String const * (*get_type)(MixerControlPlugin * plugin);
-	GtkWidget * (*get_widget)(MixerControlPlugin * plugin);
-	int (*set)(MixerControlPlugin * plugin, va_list properties);
-} MixerControlDefinition;
-
-#endif /* !DESKTOP_MIXER_CONTROL_H */
+#endif /* !MIXER_COMMON_H */

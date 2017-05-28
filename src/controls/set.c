@@ -47,6 +47,8 @@ typedef struct _MixerControlSet
 
 struct _MixerControlPlugin
 {
+	MixerControlPluginHelper * helper;
+
 	GtkWidget * widget;
 
 	MixerControlSet * sets;
@@ -55,8 +57,11 @@ struct _MixerControlPlugin
 
 
 /* prototypes */
-static MixerControlPlugin * _set_init(String const * type, va_list properties);
+static MixerControlPlugin * _set_init(MixerControlPluginHelper * helper,
+		String const * type, va_list properties);
 static void _set_destroy(MixerControlPlugin * set);
+
+static int _set_get(MixerControlPlugin * set, va_list properties);
 
 static String const * _set_get_type(MixerControlPlugin * set);
 static GtkWidget * _set_get_widget(MixerControlPlugin * set);
@@ -73,6 +78,7 @@ MixerControlDefinition control =
 	NULL,
 	_set_init,
 	_set_destroy,
+	_set_get,
 	_set_get_type,
 	_set_get_widget,
 	_set_set
@@ -82,13 +88,15 @@ MixerControlDefinition control =
 /* private */
 /* functions */
 /* set_init */
-static MixerControlPlugin * _set_init(String const * type, va_list properties)
+static MixerControlPlugin * _set_init(MixerControlPluginHelper * helper,
+		String const * type, va_list properties)
 {
 	MixerControlPlugin * set;
 	(void) type;
 
 	if((set = object_new(sizeof(*set))) == NULL)
 		return NULL;
+	set->helper = helper;
 	set->widget = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(set->widget),
 			GTK_BUTTONBOX_SPREAD);
@@ -114,6 +122,14 @@ static void _set_destroy(MixerControlPlugin * set)
 
 
 /* accessors */
+/* set_get */
+static int _set_get(MixerControlPlugin * set, va_list properties)
+{
+	/* FIXME implement */
+	return -1;
+}
+
+
 /* set_get_type */
 static String const * _set_get_type(MixerControlPlugin * set)
 {

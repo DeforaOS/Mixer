@@ -33,6 +33,7 @@
 
 # include <gtk/gtk.h>
 # include <System/string.h>
+# include "common.h"
 
 
 /* MixerControl */
@@ -41,16 +42,19 @@ typedef struct _MixerControl MixerControl;
 
 
 /* functions */
-MixerControl * mixercontrol_new(String const * id, String const * icon,
-		String const * name, String const * type, ...);
+MixerControl * mixercontrol_new(Mixer * mixer, String const * id,
+		String const * icon, String const * name,
+		String const * type, ...);
 void mixercontrol_delete(MixerControl * control);
 
 /* accessors */
+int mixercontrol_get(MixerControl * control, ...);
+int mixercontrol_set(MixerControl * control, ...);
+
 String const * mixercontrol_get_id(MixerControl * control);
 String const * mixercontrol_get_type(MixerControl * control);
 GtkWidget * mixercontrol_get_widget(MixerControl * control);
 
-int mixercontrol_set(MixerControl * control, ...);
 void mixercontrol_set_icon(MixerControl * control, String const * icon);
 
 #endif /* !MIXER_CONTROL_H */

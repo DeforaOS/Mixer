@@ -29,6 +29,9 @@
 
 
 #include <stdlib.h>
+#ifdef DEBUG
+# include <stdio.h>
+#endif
 #include <libintl.h>
 #include <System/object.h>
 #include "Mixer/control.h"
@@ -47,6 +50,8 @@ typedef struct _MixerControlChannel
 
 struct _MixerControlPlugin
 {
+	MixerControlPluginHelper * helper;
+
 	GtkWidget * widget;
 
 	unsigned int delta;
@@ -67,14 +72,18 @@ struct _MixerControlPlugin
 #if !GTK_CHECK_VERSION(3, 0, 0)
 	GtkWidget * mute_image;
 #endif
+
+	gboolean signal;
 };
 
 
 /* prototypes */
 /* control */
-static MixerControlPlugin * _channels_init(String const * type,
-		va_list properties);
+static MixerControlPlugin * _channels_init(MixerControlPluginHelper * helper,
+		String const * type, va_list properties);
 static void _channels_destroy(MixerControlPlugin * channels);
+
+static int _channels_get(MixerControlPlugin * channels, va_list properties);
 
 static String const * _channels_get_type(MixerControlPlugin * channels);
 static GtkWidget * _channels_get_widget(MixerControlPlugin * channels);
@@ -102,6 +111,7 @@ MixerControlDefinition control =
 	NULL,
 	_channels_init,
 	_channels_destroy,
+	_channels_get,
 	_channels_get_type,
 	_channels_get_widget,
 	_channels_set
@@ -111,8 +121,8 @@ MixerControlDefinition control =
 /* private */
 /* functions */
 /* channels_init */
-static MixerControlPlugin * _channels_init(String const * type,
-		va_list properties)
+static MixerControlPlugin * _channels_init(MixerControlPluginHelper * helper,
+		String const * type, va_list properties)
 {
 	MixerControlPlugin * channels;
 	GtkWidget * hbox;
@@ -124,6 +134,7 @@ static MixerControlPlugin * _channels_init(String const * type,
 
 	if((channels = object_new(sizeof(*channels))) == NULL)
 		return NULL;
+	channels->helper = helper;
 	channels->widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
 	gtk_container_set_border_width(GTK_CONTAINER(channels->widget), 4);
 	channels->delta = 1;
@@ -181,6 +192,7 @@ static MixerControlPlugin * _channels_init(String const * type,
 	gtk_box_pack_end(GTK_BOX(channels->bbox), hbox, FALSE, TRUE, 0);
 	gtk_box_pack_end(GTK_BOX(channels->widget), channels->bbox, FALSE, TRUE,
 			0);
+	channels->signal = FALSE;
 	if(_channels_set(channels, properties) != 0)
 	{
 		_channels_destroy(channels);
@@ -199,6 +211,50 @@ static void _channels_destroy(MixerControlPlugin * channels)
 
 
 /* accessors */
+static int _channels_get(MixerControlPlugin * channels, va_list properties)
+{
+	String const * p;
+	gboolean * b;
+	double * value;
+	size_t i;
+
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s()\n", __func__);
+#endif
+	while((p = va_arg(properties, String const *)) != NULL)
+		if(string_compare(p, "bind") == 0)
+		{
+			b = va_arg(properties, gboolean *);
+			*b = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+						channels->bind));
+		}
+		else if(string_compare(p, "value") == 0)
+		{
+			if(channels->channels_cnt == 0)
+				return -1;
+			if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+							channels->bind))
+					== FALSE)
+				return -1;
+			value = va_arg(properties, double *);
+			*value = gtk_range_get_value(GTK_RANGE(
+						channels->channels[0].widget));
+		}
+		else if(sscanf(p, "value%zu", &i) == 1)
+		{
+			if(i >= channels->channels_cnt)
+				return -1;
+			value = va_arg(properties, double *);
+			*value = gtk_range_get_value(GTK_RANGE(
+						channels->channels[i].widget));
+		}
+		/* FIXME implement the rest */
+		else
+			return -1;
+	return 0;
+}
+
+
 /* channels_get_type */
 static String const * _channels_get_type(MixerControlPlugin * channels)
 {
@@ -393,13 +449,24 @@ static void _channels_on_changed(GtkWidget * widget, gpointer data)
 	gdouble value;
 	size_t i;
 
-	value = gtk_range_get_value(GTK_RANGE(widget));
-	if(channels->bind)
-		for(i = 0; i < channels->channels_cnt; i++)
-			gtk_range_set_value(
-					GTK_RANGE(channels->channels[i].widget),
-					value);
-	/* FIXME really implement */
+#ifdef DEBUG
+	fprintf(stderr, "DEBUG: %s()\n", __func__);
+#endif
+	if(channels->signal == TRUE)
+		return;
+	channels->signal = TRUE;
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(channels->bind)))
+	{
+		value = gtk_range_get_value(GTK_RANGE(widget));
+		if(channels->bind)
+			for(i = 0; i < channels->channels_cnt; i++)
+			{
+				widget = channels->channels[i].widget;
+				gtk_range_set_value(GTK_RANGE(widget), value);
+			}
+	}
+	channels->helper->mixercontrol_set(channels->helper->control);
+	channels->signal = FALSE;
 }
 
 
@@ -408,10 +475,8 @@ static void _channels_on_changed(GtkWidget * widget, gpointer data)
 static void _channels_on_mute_notify_active(gpointer data)
 {
 	MixerControlPlugin * channels = data;
-	gboolean active;
 
-	active = gtk_switch_get_active(GTK_SWITCH(channels->mute));
-	/* FIXME implement */
+	channels->helper->mixercontrol_set(channels->helper->control);
 }
 #else
 /* channels_on_mute_toggled */
@@ -425,6 +490,6 @@ static void _channels_on_mute_toggled(gpointer data)
 	gtk_image_set_from_icon_name(GTK_IMAGE(channels->mute_image),
 			active ? "audio-volume-muted" : "audio-volume-high",
 			GTK_ICON_SIZE_BUTTON);
-	/* FIXME implement */
+	channels->helper->mixercontrol_set(channels->helper->control);
 }
 #endif

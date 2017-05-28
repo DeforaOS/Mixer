@@ -47,6 +47,8 @@ typedef struct _MixerControlRadio
 
 struct _MixerControlPlugin
 {
+	MixerControlPluginHelper * helper;
+
 	GtkWidget * widget;
 
 	GSList * group;
@@ -57,9 +59,11 @@ struct _MixerControlPlugin
 
 /* prototypes */
 /* control */
-static MixerControlPlugin * _radio_init(String const * type,
-		va_list properties);
+static MixerControlPlugin * _radio_init(MixerControlPluginHelper * helper,
+		String const * type, va_list properties);
 static void _radio_destroy(MixerControlPlugin * radio);
+
+static int _radio_get(MixerControlPlugin * radio, va_list properties);
 
 static String const * _radio_get_type(MixerControlPlugin * radio);
 static GtkWidget * _radio_get_widget(MixerControlPlugin * radio);
@@ -78,6 +82,7 @@ MixerControlDefinition control =
 	NULL,
 	_radio_init,
 	_radio_destroy,
+	_radio_get,
 	_radio_get_type,
 	_radio_get_widget,
 	_radio_set
@@ -87,13 +92,15 @@ MixerControlDefinition control =
 /* private */
 /* functions */
 /* radio_init */
-static MixerControlPlugin * _radio_init(String const * type, va_list properties)
+static MixerControlPlugin * _radio_init(MixerControlPluginHelper * helper,
+		String const * type, va_list properties)
 {
 	MixerControlPlugin * radio;
 	(void) type;
 
 	if((radio = object_new(sizeof(*radio))) == NULL)
 		return NULL;
+	radio->helper = helper;
 	radio->widget = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(radio->widget),
 			GTK_BUTTONBOX_SPREAD);
@@ -120,6 +127,14 @@ static void _radio_destroy(MixerControlPlugin * radio)
 
 
 /* accessors */
+/* radio_get */
+static int _radio_get(MixerControlPlugin * radio, va_list properties)
+{
+	/* FIXME implement */
+	return -1;
+}
+
+
 /* radio_get_type */
 static String const * _radio_get_type(MixerControlPlugin * radio)
 {
