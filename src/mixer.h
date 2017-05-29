@@ -68,6 +68,8 @@ int mixer_set(Mixer * mixer, MixerControl * control);
 /* useful */
 void mixer_properties(Mixer * mixer);
 
+int mixer_refresh(Mixer * mixer);
+
 void mixer_show(Mixer * mixer);
 void mixer_show_all(Mixer * mixer);
 void mixer_show_class(Mixer * mixer, String const * name);

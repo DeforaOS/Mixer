@@ -239,6 +239,7 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 			value = va_arg(properties, double *);
 			*value = gtk_range_get_value(GTK_RANGE(
 						channels->channels[0].widget));
+			*value = (*value * 255.0) / 100.0;
 		}
 		else if(sscanf(p, "value%zu", &i) == 1)
 		{
@@ -247,6 +248,7 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 			value = va_arg(properties, double *);
 			*value = gtk_range_get_value(GTK_RANGE(
 						channels->channels[i].widget));
+			*value = (*value * 255.0) / 100.0;
 		}
 		/* FIXME implement the rest */
 		else
@@ -353,6 +355,7 @@ static int _set_channels(MixerControlPlugin * channels, size_t cnt)
 {
 	size_t i;
 	MixerControlChannel * p;
+	gboolean signal = channels->signal;
 
 	/* delete channels as required */
 	if(channels->channels_cnt >= cnt)
@@ -368,6 +371,7 @@ static int _set_channels(MixerControlPlugin * channels, size_t cnt)
 	if((p = realloc(channels->channels, sizeof(*p) * cnt)) == NULL)
 		return -1;
 	channels->channels = p;
+	channels->signal = TRUE;
 	for(i = channels->channels_cnt; i < cnt; i++)
 	{
 		p = &channels->channels[i];
@@ -381,6 +385,7 @@ static int _set_channels(MixerControlPlugin * channels, size_t cnt)
 		gtk_box_pack_start(GTK_BOX(channels->hbox), p->widget, TRUE,
 				TRUE, 0);
 	}
+	channels->signal = signal;
 	if((channels->channels_cnt = cnt) < 2)
 		gtk_widget_hide(channels->bind);
 	else
@@ -419,10 +424,14 @@ static void _set_value(MixerControlPlugin * channels, gdouble value)
 static void _set_value_channel(MixerControlPlugin * channels,
 		size_t channel, gdouble value)
 {
+	gboolean signal = channels->signal;
+
+	channels->signal = TRUE;
 	if(channel < channels->channels_cnt)
 		gtk_range_set_value(
 				GTK_RANGE(channels->channels[channel].widget),
 				(value * 100.0) / 255.0);
+	channels->signal = signal;
 }
 
 
