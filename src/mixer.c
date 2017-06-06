@@ -747,7 +747,7 @@ static int _set_radio(Mixer * mixer, MixerControl * control)
 # ifdef DEBUG
 	fprintf(stderr, "DEBUG: %s() ord=%d\n", __func__, p.un.ord);
 # endif
-	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, p) != 0)
+	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, &p) != 0)
 		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
 	return 0;
 }
@@ -777,7 +777,7 @@ static int _set_set(Mixer * mixer, MixerControl * control)
 # ifdef DEBUG
 	fprintf(stderr, "DEBUG: %s() mask=%d\n", __func__, p.un.mask);
 # endif
-	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, p) != 0)
+	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, &p) != 0)
 		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
 	return 0;
 }
