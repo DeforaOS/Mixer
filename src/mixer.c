@@ -1177,24 +1177,28 @@ static int _mixer_set_control_widget(Mixer * mixer, MixerControl2 * control)
 
 static int _set_control_widget_channels(MixerControl2 * control)
 {
-	gboolean bind;
+	gboolean bind = TRUE;
 	gdouble value;
 	size_t i;
 	char buf[16];
 
-	if(mixercontrol_get(control->control, "bind", &bind, NULL) != 0)
-		return -1;
-	if(bind)
-	{
-		value = control->un.level.channels[0];
-		return mixercontrol_set(control->control, "value", value, NULL);
-	}
+	/* unset bind if the channels are no longer synchronized */
+	for(i = 1; i < control->un.level.channels_cnt; i++)
+		if(control->un.level.channels[i]
+				!= control->un.level.channels[i - 1])
+		{
+			bind = FALSE;
+			break;
+		}
+	if(bind == FALSE)
+		if(mixercontrol_set(control->control, "bind", FALSE, NULL) != 0)
+			return -1;
+	/* set the individual channels */
 	for(i = 0; i < control->un.level.channels_cnt; i++)
 	{
 		snprintf(buf, sizeof(buf), "value%zu", i);
 		value = control->un.level.channels[i];
-		if(mixercontrol_set(control->control, buf, value, NULL)
-				!= 0)
+		if(mixercontrol_set(control->control, buf, value, NULL) != 0)
 			return -1;
 	}
 	return 0;
