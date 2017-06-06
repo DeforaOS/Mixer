@@ -217,6 +217,7 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 	gboolean * b;
 	double * value;
 	size_t i;
+	unsigned int * u;
 
 #ifdef DEBUG
 	fprintf(stderr, "DEBUG: %s()\n", __func__);
@@ -227,6 +228,11 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 			b = va_arg(properties, gboolean *);
 			*b = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
 						channels->bind));
+		}
+		else if(string_compare(p, "delta") == 0)
+		{
+			u = va_arg(properties, unsigned int *);
+			*u = channels->delta;
 		}
 		else if(string_compare(p, "value") == 0)
 		{
