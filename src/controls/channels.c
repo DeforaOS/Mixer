@@ -245,7 +245,6 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 			value = va_arg(properties, double *);
 			*value = gtk_range_get_value(GTK_RANGE(
 						channels->channels[0].widget));
-			*value = (*value * 255.0) / 100.0;
 		}
 		else if(sscanf(p, "value%zu", &i) == 1)
 		{
@@ -254,7 +253,6 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 			value = va_arg(properties, double *);
 			*value = gtk_range_get_value(GTK_RANGE(
 						channels->channels[i].widget));
-			*value = (*value * 255.0) / 100.0;
 		}
 		/* FIXME implement the rest */
 		else
@@ -437,7 +435,7 @@ static void _set_value_channel(MixerControlPlugin * channels,
 	signal = channels->signal;
 	channels->signal = TRUE;
 	gtk_range_set_value(GTK_RANGE(channels->channels[channel].widget),
-			(value * 100.0) / 255.0);
+			value);
 	channels->signal = signal;
 }
 

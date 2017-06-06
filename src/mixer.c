@@ -686,7 +686,7 @@ static int _set_channels(Mixer * mixer, MixerControl * control)
 		fprintf(stderr, "DEBUG: %s() value%zu=%f\n",
 				__func__, i, value);
 #endif
-		mc->un.level.channels[i] = value;
+		mc->un.level.channels[i] = (value * 255.0) / 100.0;
 	}
 	return _mixer_set_control(mixer, mc);
 }
@@ -978,6 +978,7 @@ static int _mixer_get_control(Mixer * mixer, MixerControl2 * control)
 	mixer_ctrl_t p;
 	struct mixer_devinfo md;
 	int i;
+	uint16_t u16;
 # ifdef DEBUG
 	size_t u;
 	char * sep = "";
@@ -1032,19 +1033,21 @@ static int _mixer_get_control(Mixer * mixer, MixerControl2 * control)
 # endif
 			break;
 		case AUDIO_MIXER_VALUE:
-			if((control->un.level.delta = (md.un.v.delta * 100)
-						/ 255) == 0)
-				control->un.level.delta = 1;
+			u16 = md.un.v.delta;
+			if((u16 = (u16 * 100) / 255) == 0)
+				u16 = 1;
+			control->un.level.delta = u16;
 			control->un.level.channels_cnt
 				= p.un.value.num_channels;
 			for(i = 0; i < p.un.value.num_channels; i++)
 			{
-				control->un.level.channels[i]
-					= p.un.value.level[i];
 # ifdef DEBUG
 				printf("%s%u", sep, p.un.value.level[i]);
 				sep = ",";
 # endif
+				u16 = p.un.value.level[i];
+				u16 = (u16 * 100) / 255;
+				control->un.level.channels[i] = u16;
 			}
 #ifdef DEBUG
 			printf(" delta=%u", md.un.v.delta);
@@ -1064,13 +1067,11 @@ static int _mixer_get_control(Mixer * mixer, MixerControl2 * control)
 	control->un.level.delta = 1;
 	control->un.level.channels_cnt = 2;
 	u16 = value & 0xff;
-	u16 = u16 * 255 / 100;
 	control->un.level.channels[0] = u16;
 	u16 = (value & 0xff00) >> 8;
-	u16 = u16 * 255 / 100;
 	control->un.level.channels[1] = u16;
 # ifdef DEBUG
-	fprintf(stderr, "DEBUG: %s() 0x%02x%02x\n", __func__,
+	fprintf(stderr, "DEBUG: %s() % 3d % 3d\n", __func__,
 			control->un.level.channels[0],
 			control->un.level.channels[1]);
 # endif
@@ -1132,15 +1133,10 @@ static int _mixer_set_control(Mixer * mixer, MixerControl2 * control)
 	if(ioctl(mixer->fd, AUDIO_MIXER_WRITE, &p) != 0)
 		return -_mixer_error(mixer, "AUDIO_MIXER_WRITE", 1);
 #else
-	int level = 0;
-	uint16_t u16;
+	int level;
 
-	u16 = control->un.level.channels[0];
-	u16 = (u16 * 100) / 255;
-	level |= u16;
-	u16 = control->un.level.channels[1];
-	u16 = (u16 * 100) / 255;
-	level |= (u16 << 8);
+	level = (control->un.level.channels[1] << 8)
+		| control->un.level.channels[0];
 # ifdef DEBUG
 	fprintf(stderr, "DEBUG: %s() level=0x%04x\n", __func__, level);
 # endif
