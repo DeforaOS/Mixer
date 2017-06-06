@@ -211,6 +211,8 @@ static void _channels_destroy(MixerControlPlugin * channels)
 
 
 /* accessors */
+static gboolean _get_mute(MixerControlPlugin * channels);
+
 static int _channels_get(MixerControlPlugin * channels, va_list properties)
 {
 	String const * p;
@@ -233,6 +235,11 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 		{
 			u = va_arg(properties, unsigned int *);
 			*u = channels->delta;
+		}
+		if(string_compare(p, "mute") == 0)
+		{
+			b = va_arg(properties, gboolean *);
+			*b = _get_mute(channels);
 		}
 		else if(string_compare(p, "value") == 0)
 		{
@@ -258,6 +265,15 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 		else
 			return -1;
 	return 0;
+}
+
+static gboolean _get_mute(MixerControlPlugin * channels)
+{
+#if GTK_CHECK_VERSION(3, 0, 0)
+	return gtk_switch_get_active(GTK_SWITCH(channels->mute));
+#else
+	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(channels->mute));
+#endif
 }
 
 
