@@ -430,13 +430,14 @@ static void _set_value(MixerControlPlugin * channels, gdouble value)
 static void _set_value_channel(MixerControlPlugin * channels,
 		size_t channel, gdouble value)
 {
-	gboolean signal = channels->signal;
+	gboolean signal;
 
+	if(channel >= channels->channels_cnt)
+		return;
+	signal = channels->signal;
 	channels->signal = TRUE;
-	if(channel < channels->channels_cnt)
-		gtk_range_set_value(
-				GTK_RANGE(channels->channels[channel].widget),
-				(value * 100.0) / 255.0);
+	gtk_range_set_value(GTK_RANGE(channels->channels[channel].widget),
+			(value * 100.0) / 255.0);
 	channels->signal = signal;
 }
 
