@@ -1223,6 +1223,8 @@ static int _set_control_widget_set(MixerControl2 * control)
 /* mixer_refresh_control */
 static int _mixer_refresh_control(Mixer * mixer, MixerControl2 * control)
 {
+	if(_mixer_get_control(mixer, control) != 0)
+		return -1;
 	return _mixer_set_control_widget(mixer, control);
 }
 
