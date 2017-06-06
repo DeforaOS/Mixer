@@ -577,7 +577,7 @@ void mixer_delete(Mixer * mixer)
 	if(mixer->source > 0)
 		g_source_remove(mixer->source);
 	for(i = 0; i < mixer->controls_cnt; i++)
-		mixercontrol_delete(mixer->controls[i]);
+		mixercontrol_delete(mixer->controls[i].control);
 	free(mixer->controls);
 	if(mixer->fd >= 0)
 		close(mixer->fd);
