@@ -662,7 +662,7 @@ static int _set_channels(Mixer * mixer, MixerControl * control)
 {
 	size_t i;
 	double value;
-	MixerControl2 mc;
+	MixerControl2 * mc;
 	char buf[16];
 
 #ifdef DEBUG
@@ -674,10 +674,10 @@ static int _set_channels(Mixer * mixer, MixerControl * control)
 			break;
 	if(i == mixer->controls_cnt)
 		return -1;
-	mc.index = mixer->controls[i].index;
-	if(_mixer_get_control(mixer, &mc) != 0)
+	mc = &mixer->controls[i];
+	if(_mixer_get_control(mixer, mc) != 0)
 		return -1;
-	for(i = 0; i < mc.un.level.channels_cnt; i++)
+	for(i = 0; i < mc->un.level.channels_cnt; i++)
 	{
 		snprintf(buf, sizeof(buf), "value%zu", i);
 		if(mixercontrol_get(control, buf, &value, NULL) != 0)
@@ -686,9 +686,9 @@ static int _set_channels(Mixer * mixer, MixerControl * control)
 		fprintf(stderr, "DEBUG: %s() value%zu=%f\n",
 				__func__, i, value);
 #endif
-		mc.un.level.channels[i] = value;
+		mc->un.level.channels[i] = value;
 	}
-	return _mixer_set_control(mixer, &mc);
+	return _mixer_set_control(mixer, mc);
 }
 
 #if defined(AUDIO_MIXER_DEVINFO)
