@@ -236,7 +236,7 @@ static int _channels_get(MixerControlPlugin * channels, va_list properties)
 			u = va_arg(properties, unsigned int *);
 			*u = channels->delta;
 		}
-		if(string_compare(p, "mute") == 0)
+		else if(string_compare(p, "mute") == 0)
 		{
 			b = va_arg(properties, gboolean *);
 			*b = _get_mute(channels);
