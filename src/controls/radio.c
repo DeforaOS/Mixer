@@ -71,6 +71,7 @@ static GtkWidget * _radio_get_widget(MixerControlPlugin * radio);
 static int _radio_set(MixerControlPlugin * radio, va_list properties);
 
 /* callbacks */
+static void _radio_on_toggled(gpointer data);
 
 
 /* public */
@@ -127,10 +128,34 @@ static void _radio_destroy(MixerControlPlugin * radio)
 
 /* accessors */
 /* radio_get */
+static unsigned int _get_value(MixerControlPlugin * radio);
+
 static int _radio_get(MixerControlPlugin * radio, va_list properties)
 {
-	/* FIXME implement */
-	return -1;
+	String const * p;
+	unsigned int * u;
+
+	while((p = va_arg(properties, String const *)) != NULL)
+		if(string_compare(p, "value") == 0)
+		{
+			u = va_arg(properties, unsigned int *);
+			*u = _get_value(radio);
+		}
+		else
+			/* FIXME implement the rest */
+			return -1;
+	return 0;
+}
+
+static unsigned int _get_value(MixerControlPlugin * radio)
+{
+	size_t i;
+
+	for(i = 0; i < radio->radios_cnt; i++)
+		if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+						radio->radios[i].widget)))
+			return radio->radios[i].value;
+	return 0;
 }
 
 
@@ -228,10 +253,11 @@ static int _set_members(MixerControlPlugin * radio, unsigned int cnt)
 		p->value = 0;
 		p->widget = gtk_radio_button_new(radio->group);
 		gtk_widget_set_sensitive(p->widget, FALSE);
-		/* FIXME implement the callback */
 		if(radio->group == NULL)
 			radio->group = gtk_radio_button_get_group(
 					GTK_RADIO_BUTTON(p->widget));
+		g_signal_connect_swapped(p->widget, "toggled", G_CALLBACK(
+					_radio_on_toggled), radio);
 		gtk_container_add(GTK_CONTAINER(radio->widget), p->widget);
 	}
 	radio->radios_cnt = cnt;
@@ -241,8 +267,17 @@ static int _set_members(MixerControlPlugin * radio, unsigned int cnt)
 
 static int _set_value(MixerControlPlugin * radio, unsigned int value)
 {
-	/* FIXME implement */
-	return 0;
+	size_t i;
+
+	for(i = 0; i < radio->radios_cnt; i++)
+		if(radio->radios[i].value == value)
+		{
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+						radio->radios[i].widget),
+					TRUE);
+			return 0;
+		}
+	return -1;
 }
 
 static int _set_value_pos(MixerControlPlugin * radio, unsigned int pos,
@@ -258,4 +293,10 @@ static int _set_value_pos(MixerControlPlugin * radio, unsigned int pos,
 
 
 /* callbacks */
-/* FIXME implement */
+/* radio_on_toggled */
+static void _radio_on_toggled(gpointer data)
+{
+	MixerControlPlugin * radio = data;
+
+	radio->helper->mixercontrol_set(radio->helper->control);
+}

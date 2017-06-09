@@ -57,6 +57,7 @@ struct _MixerControlPlugin
 
 
 /* prototypes */
+/* control */
 static MixerControlPlugin * _set_init(MixerControlPluginHelper * helper,
 		String const * type, va_list properties);
 static void _set_destroy(MixerControlPlugin * set);
