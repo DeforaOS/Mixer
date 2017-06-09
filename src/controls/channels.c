@@ -205,7 +205,7 @@ static MixerControlPlugin * _channels_init(MixerControlPluginHelper * helper,
 /* channels_destroy */
 static void _channels_destroy(MixerControlPlugin * channels)
 {
-	g_object_unref(channels->widget);
+	free(channels->channels);
 	object_delete(channels);
 }
 

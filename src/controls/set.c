@@ -116,7 +116,6 @@ static MixerControlPlugin * _set_init(MixerControlPluginHelper * helper,
 static void _set_destroy(MixerControlPlugin * set)
 {
 	free(set->sets);
-	g_object_unref(set->widget);
 	object_delete(set);
 }
 

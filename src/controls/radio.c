@@ -121,7 +121,6 @@ static MixerControlPlugin * _radio_init(MixerControlPluginHelper * helper,
 static void _radio_destroy(MixerControlPlugin * radio)
 {
 	free(radio->radios);
-	g_object_unref(radio->widget);
 	object_delete(radio);
 }
 

@@ -134,7 +134,6 @@ static MixerControlPlugin * _mute_init(MixerControlPluginHelper * helper,
 /* mute_destroy */
 static void _mute_destroy(MixerControlPlugin * mute)
 {
-	g_object_unref(mute->widget);
 	object_delete(mute);
 }
 

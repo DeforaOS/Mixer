@@ -137,8 +137,6 @@ void mixercontrol_delete(MixerControl * control)
 		control->definition->destroy(control->plugin);
 	if(control->handle != NULL)
 		plugin_delete(control->handle);
-	if(control->frame != NULL)
-		g_object_unref(control->frame);
 	if(control->id != NULL)
 		string_delete(control->id);
 	object_delete(control);
