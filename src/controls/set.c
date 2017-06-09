@@ -122,10 +122,35 @@ static void _set_destroy(MixerControlPlugin * set)
 
 /* accessors */
 /* set_get */
+static unsigned int _get_value(MixerControlPlugin * set);
+
 static int _set_get(MixerControlPlugin * set, va_list properties)
 {
-	/* FIXME implement */
-	return -1;
+	String const * p;
+	unsigned int * u;
+
+	while((p = va_arg(properties, String const *)) != NULL)
+		if(string_compare(p, "value") == 0)
+		{
+			u = va_arg(properties, unsigned int *);
+			*u = _get_value(set);
+		}
+		else
+			/* FIXME implement the rest */
+			return -1;
+	return 0;
+}
+
+static unsigned int _get_value(MixerControlPlugin * set)
+{
+	unsigned int ret = 0;
+	size_t i;
+
+	for(i = 0; i < set->sets_cnt; i++)
+		ret |= gtk_toggle_button_get_active(
+				GTK_TOGGLE_BUTTON(set->sets[i].widget))
+			? set->sets[i].value : 0;
+	return ret;
 }
 
 
@@ -233,7 +258,12 @@ static int _set_members(MixerControlPlugin * set, unsigned int cnt)
 
 static int _set_value(MixerControlPlugin * set, unsigned int value)
 {
-	/* FIXME implement */
+	size_t i;
+
+	for(i = 0; i < set->sets_cnt; i++)
+		gtk_toggle_button_set_active(
+				GTK_TOGGLE_BUTTON(set->sets[i].widget),
+				(set->sets[i].value & value) ? TRUE : FALSE);
 	return 0;
 }
 
