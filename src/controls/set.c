@@ -68,6 +68,9 @@ static GtkWidget * _set_get_widget(MixerControlPlugin * set);
 
 static int _set_set(MixerControlPlugin * set, va_list properties);
 
+/* callbacks */
+static void _set_on_toggled(gpointer data);
+
 
 /* public */
 /* variables */
@@ -248,7 +251,8 @@ static int _set_members(MixerControlPlugin * set, unsigned int cnt)
 		p->value = 0;
 		p->widget = gtk_check_button_new();
 		gtk_widget_set_sensitive(p->widget, FALSE);
-		/* FIXME implement the callback */
+		g_signal_connect_swapped(p->widget, "toggled", G_CALLBACK(
+					_set_on_toggled), set);
 		gtk_container_add(GTK_CONTAINER(set->widget), p->widget);
 	}
 	set->sets_cnt = cnt;
@@ -280,4 +284,10 @@ static int _set_value_pos(MixerControlPlugin * set, unsigned int pos,
 
 
 /* callbacks */
-/* FIXME implement */
+/* set_on_toggled */
+static void _set_on_toggled(gpointer data)
+{
+	MixerControlPlugin * set = data;
+
+	set->helper->mixercontrol_set(set->helper->control);
+}
