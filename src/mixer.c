@@ -1034,7 +1034,7 @@ static int _mixer_get_control(Mixer * mixer, MixerControl2 * control)
 			break;
 		case AUDIO_MIXER_VALUE:
 			u16 = md.un.v.delta;
-			if((u16 = (u16 * 100) / 255) == 0)
+			if((u16 = ceil((u16 * 100) / 255.0)) == 0)
 				u16 = 1;
 			control->un.level.delta = u16;
 			control->un.level.channels_cnt
@@ -1046,7 +1046,7 @@ static int _mixer_get_control(Mixer * mixer, MixerControl2 * control)
 				sep = ",";
 # endif
 				u16 = p.un.value.level[i];
-				u16 = (u16 * 100) / 255;
+				u16 = ceil((u16 * 100) / 255.0);
 				control->un.level.channels[i] = u16;
 			}
 #ifdef DEBUG
