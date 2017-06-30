@@ -1,3 +1,4 @@
+../src/controls/channels.c
 ../src/main.c
 ../src/mixer.c
 ../src/window.c
