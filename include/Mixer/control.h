@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2009-2017 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2017 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Mixer */
 /* All rights reserved.
  *
@@ -28,50 +28,41 @@
 
 
 
-#ifndef MIXER_MIXER_H
-# define MIXER_MIXER_H
+#ifndef DESKTOP_MIXER_CONTROL_H
+# define DESKTOP_MIXER_CONTROL_H
 
+# include <stdarg.h>
 # include <gtk/gtk.h>
 # include <System/string.h>
-# include "control.h"
-# include "common.h"
 
 
-/* Mixer */
-/* types */
-typedef enum _MixerLayout
+/* MixerControlPlugin */
+typedef struct _MixerControl MixerControl;
+
+typedef struct _MixerControlPlugin MixerControlPlugin;
+
+typedef struct _MixerControlPluginHelper
 {
-	ML_HORIZONTAL,
-	ML_TABBED,
-	ML_VERTICAL
-} MixerLayout;
+	MixerControl * control;
 
-typedef struct _MixerProperties
+	int (*mixercontrol_set)(MixerControl * control);
+} MixerControlPluginHelper;
+
+typedef struct _MixerControlDefinition
 {
-	char name[32];
-	char version[16];
-	char device[16];
-} MixerProperties;
+	String const * icon;
+	String const * name;
+	String const * description;
 
+	/* callbacks */
+	MixerControlPlugin * (*init)(MixerControlPluginHelper * helper,
+			String const * type, va_list properties);
+	void (*destroy)(MixerControlPlugin * plugin);
 
-/* functions */
-Mixer * mixer_new(GtkWidget * window, String const * device,
-		MixerLayout layout);
-void mixer_delete(Mixer * mixer);
+	int (*get)(MixerControlPlugin * plugin, va_list properties);
+	String const * (*get_type)(MixerControlPlugin * plugin);
+	GtkWidget * (*get_widget)(MixerControlPlugin * plugin);
+	int (*set)(MixerControlPlugin * plugin, va_list properties);
+} MixerControlDefinition;
 
-/* accessors */
-int mixer_get_properties(Mixer * mixer, MixerProperties * properties);
-GtkWidget * mixer_get_widget(Mixer * mixer);
-
-int mixer_set(Mixer * mixer, MixerControl * control);
-
-/* useful */
-void mixer_properties(Mixer * mixer);
-
-int mixer_refresh(Mixer * mixer);
-
-void mixer_show(Mixer * mixer);
-void mixer_show_all(Mixer * mixer);
-void mixer_show_class(Mixer * mixer, String const * name);
-
-#endif /* !MIXER_MIXER_H */
+#endif /* !DESKTOP_MIXER_CONTROL_H */

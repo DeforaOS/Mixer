@@ -1,5 +1,5 @@
 /* $Id$ */
-/* Copyright (c) 2009-2017 Pierre Pronchery <khorben@defora.org> */
+/* Copyright (c) 2017 Pierre Pronchery <khorben@defora.org> */
 /* This file is part of DeforaOS Desktop Mixer */
 /* All rights reserved.
  *
@@ -28,50 +28,33 @@
 
 
 
-#ifndef MIXER_MIXER_H
-# define MIXER_MIXER_H
+#ifndef MIXER_CONTROL_H
+# define MIXER_CONTROL_H
 
 # include <gtk/gtk.h>
 # include <System/string.h>
-# include "control.h"
 # include "common.h"
 
 
-/* Mixer */
+/* MixerControl */
 /* types */
-typedef enum _MixerLayout
-{
-	ML_HORIZONTAL,
-	ML_TABBED,
-	ML_VERTICAL
-} MixerLayout;
-
-typedef struct _MixerProperties
-{
-	char name[32];
-	char version[16];
-	char device[16];
-} MixerProperties;
+typedef struct _MixerControl MixerControl;
 
 
 /* functions */
-Mixer * mixer_new(GtkWidget * window, String const * device,
-		MixerLayout layout);
-void mixer_delete(Mixer * mixer);
+MixerControl * mixercontrol_new(Mixer * mixer, String const * id,
+		String const * icon, String const * name,
+		String const * type, ...);
+void mixercontrol_delete(MixerControl * control);
 
 /* accessors */
-int mixer_get_properties(Mixer * mixer, MixerProperties * properties);
-GtkWidget * mixer_get_widget(Mixer * mixer);
+int mixercontrol_get(MixerControl * control, ...);
+int mixercontrol_set(MixerControl * control, ...);
 
-int mixer_set(Mixer * mixer, MixerControl * control);
+String const * mixercontrol_get_id(MixerControl * control);
+String const * mixercontrol_get_type(MixerControl * control);
+GtkWidget * mixercontrol_get_widget(MixerControl * control);
 
-/* useful */
-void mixer_properties(Mixer * mixer);
+void mixercontrol_set_icon(MixerControl * control, String const * icon);
 
-int mixer_refresh(Mixer * mixer);
-
-void mixer_show(Mixer * mixer);
-void mixer_show_all(Mixer * mixer);
-void mixer_show_class(Mixer * mixer, String const * name);
-
-#endif /* !MIXER_MIXER_H */
+#endif /* !MIXER_CONTROL_H */
