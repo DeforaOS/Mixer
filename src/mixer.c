@@ -45,6 +45,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <math.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
 #include <Desktop.h>
