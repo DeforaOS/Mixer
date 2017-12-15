@@ -1089,19 +1089,19 @@ static String const * _mixer_get_icon(String const * id)
 		String const * name;
 		String const * icon;
 	} icons[] = {
-		{ "beep",	"audio-volume-high"	},
-		{ "cd",		"media-cdrom"		},
-		{ "dacsel",	"audio-card"		},
-		{ "input",	"stock_mic"		},
-		{ "line",	"stock_volume"		},
-		{ "master",	"audio-volume-high"	},
-		{ "mic",	"audio-input-microphone"},
-		{ "monitor",	"utilities-system-monitor"},
-		{ "output",	"audio-volume-high"	},
-		{ "pcm",	"audio-volume-high"	},
-		{ "rec",	"gtk-media-record"	},
-		{ "source",	"audio-card"		},
-		{ "vol",	"audio-volume-high"	}
+		{ "beep",	"audio-volume-high"		},
+		{ "cd",		"media-cdrom"			},
+		{ "dacsel",	"audio-card"			},
+		{ "input",	"stock_mic"			},
+		{ "line",	"stock_volume"			},
+		{ "master",	"audio-volume-high"		},
+		{ "mic",	"audio-input-microphone"	},
+		{ "monitor",	"utilities-system-monitor"	},
+		{ "output",	"audio-volume-high"		},
+		{ "pcm",	"audio-volume-high"		},
+		{ "rec",	"gtk-media-record"		},
+		{ "source",	"audio-card"			},
+		{ "vol",	"audio-volume-high"		}
 	};
 	size_t len;
 	size_t i;
