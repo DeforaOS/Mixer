@@ -1091,7 +1091,7 @@ static String const * _mixer_get_icon(String const * id)
 	} icons[] = {
 		{ "beep",	"audio-volume-high"		},
 		{ "cd",		"media-cdrom"			},
-		{ "dacsel",	"audio-card"			},
+		{ "dac",	"audio-card"			},
 		{ "input",	"stock_mic"			},
 		{ "line",	"stock_volume"			},
 		{ "master",	"audio-volume-high"		},
