@@ -62,6 +62,12 @@
 #endif
 
 
+/* constants */
+#ifndef PROGNAME
+# define PROGNAME	"mixer"
+#endif
+
+
 /* Mixer */
 /* private */
 /* types */
@@ -965,7 +971,7 @@ static int _mixer_error(Mixer * mixer, char const * message, int ret)
 
 static int _error_text(char const * message, int ret)
 {
-	fputs(PACKAGE ": ", stderr);
+	fputs(PROGNAME ": ", stderr);
 	perror(message);
 	return ret;
 }
