@@ -43,7 +43,7 @@ static char _license[] =
 #include "callbacks.h"
 #include "window.h"
 #include "../config.h"
-#define _(string) (string)
+#define _(string) gettext(string)
 #define N_(string) (string)
 
 
