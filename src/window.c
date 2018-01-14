@@ -388,7 +388,7 @@ void mixerwindow_about(MixerWindow * mixer)
 			_("translator-credits"));
 	desktop_about_dialog_set_version(mixer->about, VERSION);
 	desktop_about_dialog_set_website(mixer->about,
-			"http://www.defora.org/");
+			"https://www.defora.org/");
 	gtk_widget_show(mixer->about);
 }
 
