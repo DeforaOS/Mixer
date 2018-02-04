@@ -168,6 +168,8 @@ static int _mute_get(MixerControlPlugin * mute, va_list properties)
 /* mute_get_type */
 static String const * _mute_get_type(MixerControlPlugin * mute)
 {
+	(void) mute;
+
 	return "mute";
 }
 

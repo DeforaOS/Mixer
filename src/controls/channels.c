@@ -280,6 +280,8 @@ static gboolean _get_mute(MixerControlPlugin * channels)
 /* channels_get_type */
 static String const * _channels_get_type(MixerControlPlugin * channels)
 {
+	(void) channels;
+
 	return "channels";
 }
 
