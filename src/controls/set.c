@@ -30,6 +30,7 @@
 
 #include <stdlib.h>
 #include <System/object.h>
+#include <Desktop.h>
 #include "Mixer/control.h"
 
 
