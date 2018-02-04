@@ -162,6 +162,8 @@ static unsigned int _get_value(MixerControlPlugin * set)
 /* set_get_type */
 static String const * _set_get_type(MixerControlPlugin * set)
 {
+	(void) set;
+
 	return "set";
 }
 

@@ -163,6 +163,8 @@ static unsigned int _get_value(MixerControlPlugin * radio)
 /* radio_get_type */
 static String const * _radio_get_type(MixerControlPlugin * radio)
 {
+	(void) radio;
+
 	return "radio";
 }
 
