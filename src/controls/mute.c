@@ -30,6 +30,7 @@
 
 #include <libintl.h>
 #include <System/object.h>
+#include <Desktop.h>
 #include "Mixer/control.h"
 #define _(string) gettext(string)
 
