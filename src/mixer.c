@@ -1163,6 +1163,7 @@ static int _set_control_widget_set(MixerControl2 * control);
 static int _mixer_set_control_widget(Mixer * mixer, MixerControl2 * control)
 {
 	String const * type;
+	(void) mixer;
 
 	if((type = mixercontrol_get_type(control->control)) == NULL)
 		/* XXX report error */
