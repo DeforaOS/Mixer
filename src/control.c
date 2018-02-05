@@ -115,7 +115,9 @@ MixerControl * mixercontrol_new(Mixer * mixer, String const * id,
 	va_end(ap);
 	/* widgets */
 	control->frame = gtk_frame_new(NULL);
+	gtk_container_set_border_width(GTK_CONTAINER(control->frame), 2);
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox), 4);
 	control->icon = gtk_image_new_from_icon_name(icon, GTK_ICON_SIZE_MENU);
 	gtk_box_pack_start(GTK_BOX(hbox), control->icon, FALSE, TRUE, 0);
 	control->name = gtk_label_new(name);
