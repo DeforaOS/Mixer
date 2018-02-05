@@ -63,8 +63,8 @@
 
 
 /* constants */
-#ifndef PROGNAME
-# define PROGNAME	"mixer"
+#ifndef PROGNAME_MIXER
+# define PROGNAME_MIXER	"mixer"
 #endif
 
 
@@ -973,7 +973,7 @@ static int _mixer_error(Mixer * mixer, char const * message, int ret)
 
 static int _error_text(char const * message, int ret)
 {
-	fputs(PROGNAME ": ", stderr);
+	fputs(PROGNAME_MIXER ": ", stderr);
 	perror(message);
 	return ret;
 }

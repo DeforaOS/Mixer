@@ -39,8 +39,8 @@
 
 
 /* constants */
-#ifndef PROGNAME
-# define PROGNAME	"mixer"
+#ifndef PROGNAME_MIXER
+# define PROGNAME_MIXER	"mixer"
 #endif
 #ifndef PREFIX
 # define PREFIX		"/usr/local"
@@ -77,7 +77,7 @@ static int _mixer(char const * device, MixerLayout layout, gboolean embedded)
 /* error */
 static int _error(char const * message, int ret)
 {
-	fputs(PROGNAME ": ", stderr);
+	fputs(PROGNAME_MIXER ": ", stderr);
 	perror(message);
 	return ret;
 }
@@ -91,7 +91,7 @@ static int _usage(void)
 "  -T	Show the classes in separate tabs\n"
 "  -V	Show the classes on top of each other\n"
 "  -d	The mixer device to use\n"
-"  -x	Enable embedded mode\n"), PROGNAME);
+"  -x	Enable embedded mode\n"), PROGNAME_MIXER);
 	return 1;
 }
 
