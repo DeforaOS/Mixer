@@ -33,6 +33,7 @@
 #endif
 #include <System/object.h>
 #include <System/plugin.h>
+#include <Desktop.h>
 #include "Mixer/control.h"
 #include "mixer.h"
 #include "control.h"
