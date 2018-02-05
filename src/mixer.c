@@ -232,7 +232,7 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 		hvbox = gtk_box_new((layout == ML_VERTICAL)
 				? GTK_ORIENTATION_VERTICAL
 				: GTK_ORIENTATION_HORIZONTAL, 4);
-		gtk_container_set_border_width(GTK_CONTAINER(hvbox), 4);
+		gtk_container_set_border_width(GTK_CONTAINER(hvbox), 2);
 		if(layout == ML_VERTICAL)
 			gtk_box_set_homogeneous(GTK_BOX(hvbox), TRUE);
 		_mixer_scrolled_window_add(scrolled, hvbox);
@@ -261,6 +261,7 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 		p->page = -1;
 #else
 		hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+		gtk_container_set_border_width(GTK_CONTAINER(hbox), 2);
 		if(mixer->notebook != NULL)
 		{
 			label = _new_frame_label(NULL, _("All"), NULL);
@@ -340,6 +341,7 @@ Mixer * mixer_new(GtkWidget * window, String const * device, MixerLayout layout)
 			p = &mixer->classes[u];
 			p->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 			hbox = p->hbox;
+			gtk_container_set_border_width(GTK_CONTAINER(hbox), 2);
 			if(mixer->notebook != NULL)
 			{
 				if((name = strdup(mixer->classes[u].label.name))
