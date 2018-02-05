@@ -209,6 +209,20 @@ void mixercontrol_set_icon(MixerControl * control, String const * icon)
 			GTK_ICON_SIZE_MENU);
 }
 
+/* useful */
+/* mixercontrol_disable */
+void mixercontrol_disable(MixerControl * control)
+{
+	gtk_widget_set_sensitive(control->frame, FALSE);
+}
+
+
+/* mixercontrol_enable */
+void mixercontrol_enable(MixerControl * control)
+{
+	gtk_widget_set_sensitive(control->frame, TRUE);
+}
+
 
 /* private */
 /* mixercontrol_helper_set */

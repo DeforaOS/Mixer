@@ -57,4 +57,8 @@ GtkWidget * mixercontrol_get_widget(MixerControl * control);
 
 void mixercontrol_set_icon(MixerControl * control, String const * icon);
 
+/* useful */
+void mixercontrol_disable(MixerControl * control);
+void mixercontrol_enable(MixerControl * control);
+
 #endif /* !MIXER_CONTROL_H */

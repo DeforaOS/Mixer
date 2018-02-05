@@ -995,7 +995,11 @@ static int _mixer_get_control(Mixer * mixer, MixerControl2 * control)
 
 	md.index = control->index;
 	if(ioctl(mixer->fd, AUDIO_MIXER_DEVINFO, &md) != 0)
-		return -_mixer_error(mixer, "AUDIO_MIXER_DEVINFO", 1);
+	{
+		if(errno == ENXIO)
+			return -errno;
+		return _mixer_error(mixer, "AUDIO_MIXER_DEVINFO", -errno);
+	}
 	p.dev = control->index;
 	/* XXX this is necessary for some drivers and I don't like it */
 	if((p.type = md.type) == AUDIO_MIXER_VALUE)
@@ -1071,7 +1075,7 @@ static int _mixer_get_control(Mixer * mixer, MixerControl2 * control)
 	uint16_t u16;
 
 	if(ioctl(mixer->fd, MIXER_READ(control->index), &value) != 0)
-		return -_mixer_error(NULL, "MIXER_READ", 1);
+		return _mixer_error(NULL, "MIXER_READ", -errno);
 	control->type = 0;
 	control->un.level.delta = 1;
 	control->un.level.channels_cnt = 2;
@@ -1233,9 +1237,17 @@ static int _set_control_widget_set(MixerControl2 * control)
 /* mixer_refresh_control */
 static int _mixer_refresh_control(Mixer * mixer, MixerControl2 * control)
 {
-	if(_mixer_get_control(mixer, control) != 0)
-		return -1;
-	return _mixer_set_control_widget(mixer, control);
+	int ret;
+
+	if((ret = _mixer_get_control(mixer, control)) != 0)
+	{
+		if(ret == -ENXIO)
+			mixercontrol_disable(control->control);
+		return ret;
+	}
+	if((ret = _mixer_set_control_widget(mixer, control)) == 0)
+		mixercontrol_enable(control->control);
+	return ret;
 }
 
 
