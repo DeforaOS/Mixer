@@ -71,11 +71,11 @@ static char const * _authors[] =
 	NULL
 };
 
-#ifdef EMBEDDED
 static const DesktopAccel _mixer_accel[] =
 {
 	{ G_CALLBACK(on_file_close), GDK_CONTROL_MASK, GDK_KEY_W },
 	{ G_CALLBACK(on_file_properties), GDK_MOD1_MASK, GDK_KEY_Return },
+#ifdef EMBEDDED
 	{ G_CALLBACK(on_view_all), GDK_CONTROL_MASK, GDK_KEY_A },
 # ifdef AUDIO_MIXER_DEVINFO
 	{ G_CALLBACK(on_view_outputs), GDK_CONTROL_MASK, GDK_KEY_O },
@@ -86,9 +86,9 @@ static const DesktopAccel _mixer_accel[] =
 	{ G_CALLBACK(on_view_mix), GDK_CONTROL_MASK, GDK_KEY_X },
 	{ G_CALLBACK(on_view_modem), GDK_CONTROL_MASK, GDK_KEY_M },
 # endif
+#endif /* EMBEDDED */
 	{ NULL, 0, 0 }
 };
-#endif /* EMBEDDED */
 
 #ifndef EMBEDDED
 static const DesktopMenu _mixer_menu_file[] =
@@ -275,9 +275,8 @@ MixerWindow * mixerwindow_new(char const * device, MixerLayout layout,
 	}
 	else
 		mixer->menubar = NULL;
-#else
-	desktop_accel_create(_mixer_accel, mixer, accel);
 #endif
+	desktop_accel_create(_mixer_accel, mixer, accel);
 	/* toolbar */
 	if(embedded == FALSE)
 	{
