@@ -1119,10 +1119,10 @@ static String const * _mixer_get_icon(String const * id)
 	size_t i;
 
 	for(i = 0; i < sizeof(icons) / sizeof(*icons); i++)
-		if(strncmp(icons[i].name, id, string_length(icons[i].name))
+		if(strncmp(icons[i].name, id, string_get_length(icons[i].name))
 				== 0)
 			return icons[i].icon;
-	len = string_length(id);
+	len = string_get_length(id);
 	if(string_find(id, "sel") != NULL)
 		return "multimedia";
 	else if(len > 5 && string_compare(&id[len - 5], ".mute") == 0)
